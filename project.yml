@@ -1,0 +1,28 @@
+name: Feeds
+targets:
+  Feeds:
+    sources: Sources
+    type: framework
+    platform: macOS
+    settings:
+      base:
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: Apple Development
+    info:
+        path: Sources/Info.plist
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
+  FeedsTests:
+    sources: Tests
+    type: bundle.unit-test
+    platform: macOS
+    dependencies:
+      - target: Feeds
+    settings:
+      base:
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: Apple Development
