@@ -7,6 +7,4 @@
 
 import XCTest
 
-class FeedsTests: XCTestCase {
-
-}
+class FeedsTests: XCTestCase {}
