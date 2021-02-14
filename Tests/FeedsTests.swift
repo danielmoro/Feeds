@@ -7,4 +7,17 @@
 
 import XCTest
 
-class FeedsTests: XCTestCase {}
+class RemoteFeedLoader {}
+
+class HTTPClient {
+    var remoteFeedURL: URL?
+}
+
+class FeedsTests: XCTestCase {
+    func test_init_doesNotFetchURL() {
+        _ = RemoteFeedLoader()
+        let client = HTTPClient()
+
+        XCTAssertNil(client.remoteFeedURL)
+    }
+}
