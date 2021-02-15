@@ -30,7 +30,7 @@ class FeedsTests: XCTestCase {
         let url = URL(string: "http://a-url.com")!
         let (_, client) = makeSUT(url: url)
 
-        XCTAssertNil(client.requestedURL)
+        XCTAssertTrue(client.requestedURLs.isEmpty)
     }
 
     func test_load_fetchesProperURL() {
@@ -39,7 +39,17 @@ class FeedsTests: XCTestCase {
 
         sut.load()
 
-        XCTAssertEqual(url, client.requestedURL)
+        XCTAssertEqual(client.requestedURLs, [url])
+    }
+
+    func test_loadTwice_fetchesProperURLsTwice() {
+        let url = URL(string: "http://a-given-url.com")!
+        let (sut, client) = makeSUT(url: url)
+
+        sut.load()
+        sut.load()
+
+        XCTAssertEqual(client.requestedURLs, [url, url])
     }
 
     // MARK: - Helpers
@@ -52,10 +62,10 @@ class FeedsTests: XCTestCase {
     }
 
     private class HTTPClientSpy: HTTPClient {
-        var requestedURL: URL?
+        var requestedURLs: [URL] = []
 
         func get(from url: URL) {
-            requestedURL = url
+            requestedURLs.append(url)
         }
     }
 }
