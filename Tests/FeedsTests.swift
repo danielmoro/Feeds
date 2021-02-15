@@ -46,7 +46,6 @@ class FeedsTests: XCTestCase {
         })
 
         client.expectToComplete(with: expectedError)
-        client.completions[0](expectedError)
 
         XCTAssertEqual(resultError, RemoteFeedLoader.Error.connectivity)
     }
@@ -61,16 +60,20 @@ class FeedsTests: XCTestCase {
     }
 
     private class HTTPClientSpy: HTTPClient {
-        var requestedURLs: [URL] = []
-        var completions: [(Error?) -> Void] = []
+        var messages: [(url: URL, completion: (Error?) -> Void)] = []
+
+        var requestedURLs: [URL] {
+            messages.map(\.url)
+        }
 
         func get(from url: URL, completion: @escaping (Error?) -> Void) {
-            completions.append(completion)
-            requestedURLs.append(url)
+            messages.append((url, completion))
         }
 
         func expectToComplete(with error: Error?, at index: Int = 0) {
-            completions[index](error)
+            messages[index].completion(error)
         }
     }
+
+    private extension HTTPClientSpy {}
 }
