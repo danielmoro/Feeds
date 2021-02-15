@@ -45,7 +45,7 @@ class FeedsTests: XCTestCase {
             resultError = error
         })
 
-        client.expectToComplete(with: expectedError)
+        client.complete(with: expectedError)
 
         XCTAssertEqual(resultError, RemoteFeedLoader.Error.connectivity)
     }
@@ -70,10 +70,8 @@ class FeedsTests: XCTestCase {
             messages.append((url, completion))
         }
 
-        func expectToComplete(with error: Error?, at index: Int = 0) {
+        func complete(with error: Error?, at index: Int = 0) {
             messages[index].completion(error)
         }
     }
-
-    private extension HTTPClientSpy {}
 }
