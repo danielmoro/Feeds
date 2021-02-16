@@ -72,8 +72,7 @@ class FeedsTests: XCTestCase {
         let (sut, client) = makeSUT(url: url)
 
         expect(sut, toFinishWith: .success([])) {
-            let json = Data("{\"images\":[]}".utf8)
-            client.complete(withStatusCode: 200, data: json)
+            client.complete(withStatusCode: 200, data: makeItemsJSON(items: []))
         }
     }
 
@@ -81,39 +80,22 @@ class FeedsTests: XCTestCase {
         let url = URL(string: "http://a-given-url.com")!
         let (sut, client) = makeSUT(url: url)
 
-        let item1 = FeedItem(
+        let item1 = makeFeedItem(
             id: UUID(),
             description: nil,
             location: nil,
             imageURL: URL(string: "http://a-image-url.com")!
         )
 
-        let item1JSON = [
-            "id": item1.id.uuidString,
-            "image": item1.imageURL.absoluteString,
-        ]
-
-        let item2 = FeedItem(
+        let item2 = makeFeedItem(
             id: UUID(),
             description: "item description",
             location: "item location",
-            imageURL: URL(string: "http://a-image-url.com")!
+            imageURL: URL(string: "http://another-image-url.com")!
         )
 
-        let item2JSON = [
-            "id": item2.id.uuidString,
-            "description": item2.description!,
-            "location": item2.location!,
-            "image": item2.imageURL.absoluteString,
-        ]
-
-        let json = [
-            "images": [item1JSON, item2JSON],
-        ]
-
-        expect(sut, toFinishWith: .success([item1, item2])) {
-            let json = try! JSONSerialization.data(withJSONObject: json, options: []) // swiftlint:disable:this force_try
-            client.complete(withStatusCode: 200, data: json)
+        expect(sut, toFinishWith: .success([item1.model, item2.model])) {
+            client.complete(withStatusCode: 200, data: makeItemsJSON(items: [item1.json, item2.json]))
         }
     }
 
@@ -124,6 +106,36 @@ class FeedsTests: XCTestCase {
         let sut = RemoteFeedLoader(url: url, client: client)
 
         return (sut, client)
+    }
+
+    private func makeFeedItem(
+        id: UUID, // swiftlint:disable:this identifier_name
+        description: String? = nil,
+        location: String? = nil,
+        imageURL: URL
+    ) -> (model: FeedItem, json: [String: Any]) {
+        let item = FeedItem(
+            id: id,
+            description: description,
+            location: location,
+            imageURL: imageURL
+        )
+
+        let json = [
+            "id": item.id.uuidString,
+            "description": item.description,
+            "location": item.location,
+            "image": item.imageURL.absoluteString,
+        ].compactMapValues { $0 }
+
+        return (item, json)
+    }
+
+    private func makeItemsJSON(items: [[String: Any]]) -> Data {
+        let json = [
+            "images": items,
+        ]
+        return try! JSONSerialization.data(withJSONObject: json, options: []) // swiftlint:disable:this force_try
     }
 
     func expect(
