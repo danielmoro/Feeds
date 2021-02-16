@@ -66,9 +66,15 @@ class FeedsTests: XCTestCase {
             client.complete(withStatusCode: 200, data: json)
         }
     }
-    
-    func test_load_generatesFeedListOn200HTTPResponseWithValidJSON() {
-        
+
+    func test_load_generatesEmptyListon200HTTPResponswithEmptyJSON() {
+        let url = URL(string: "http://a-given-url.com")!
+        let (sut, client) = makeSUT(url: url)
+
+        expect(sut, toFinishWith: .success([])) {
+            let json = Data("{\"images\":\"\"}".utf8)
+            client.complete(withStatusCode: 200, data: json)
+        }
     }
 
     // MARK: - Helpers
