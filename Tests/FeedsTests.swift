@@ -72,7 +72,47 @@ class FeedsTests: XCTestCase {
         let (sut, client) = makeSUT(url: url)
 
         expect(sut, toFinishWith: .success([])) {
-            let json = Data("{\"images\":\"\"}".utf8)
+            let json = Data("{\"images\":[]}".utf8)
+            client.complete(withStatusCode: 200, data: json)
+        }
+    }
+
+    func test_load_generatesFeedListOn200HTTPResponseWithValidJSON() {
+        let url = URL(string: "http://a-given-url.com")!
+        let (sut, client) = makeSUT(url: url)
+
+        let item1 = FeedItem(
+            id: UUID(),
+            description: nil,
+            location: nil,
+            imageURL: URL(string: "http://a-image-url.com")!
+        )
+
+        let item1JSON = [
+            "id": item1.id.uuidString,
+            "image": item1.imageURL.absoluteString,
+        ]
+
+        let item2 = FeedItem(
+            id: UUID(),
+            description: "item description",
+            location: "item location",
+            imageURL: URL(string: "http://a-image-url.com")!
+        )
+
+        let item2JSON = [
+            "id": item2.id.uuidString,
+            "description": item2.description!,
+            "location": item2.location!,
+            "image": item2.imageURL.absoluteString,
+        ]
+
+        let json = [
+            "images": [item1JSON, item2JSON],
+        ]
+
+        expect(sut, toFinishWith: .success([item1, item2])) {
+            let json = try! JSONSerialization.data(withJSONObject: json, options: []) // swiftlint:disable:this force_try
             client.complete(withStatusCode: 200, data: json)
         }
     }
