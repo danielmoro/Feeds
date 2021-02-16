@@ -23,12 +23,3 @@ public struct FeedItem: Equatable {
     public let location: String?
     public let imageURL: URL
 }
-
-extension FeedItem: Decodable {
-    enum CodingKeys: String, CodingKey {
-        case id // swiftlint:disable:this identifier_name
-        case description
-        case location
-        case imageURL = "image"
-    }
-}

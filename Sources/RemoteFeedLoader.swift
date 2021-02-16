@@ -38,7 +38,7 @@ public final class RemoteFeedLoader {
             switch result {
             case let .success(response, data):
                 if response.statusCode == 200, let root = try? JSONDecoder().decode(Root.self, from: data) {
-                    completion(.success(root.images))
+                    completion(.success(root.images.map(\.item)))
                 } else {
                     completion(.failure(.invalidData))
                 }
@@ -49,6 +49,17 @@ public final class RemoteFeedLoader {
     }
 }
 
-struct Root: Decodable {
-    var images: [FeedItem]
+private struct Root: Decodable {
+    var images: [Item]
+}
+
+private struct Item: Decodable {
+    private let id: UUID // swiftlint:disable:this identifier_name
+    private let description: String?
+    private let location: String?
+    private let image: URL
+
+    var item: FeedItem {
+        FeedItem(id: id, description: description, location: location, imageURL: image)
+    }
 }
