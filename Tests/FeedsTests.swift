@@ -35,7 +35,7 @@ class FeedsTests: XCTestCase {
         XCTAssertEqual(client.requestedURLs, [url, url])
     }
 
-    func test_load_generateConnectivityErrorOnError() {
+    func test_load_generatesConnectivityErrorOnError() {
         let url = URL(string: "http://a-given-url.com")!
         let (sut, client) = makeSUT(url: url)
 
@@ -45,7 +45,7 @@ class FeedsTests: XCTestCase {
         }
     }
 
-    func test_load_generateErrorOnNon200HTTPResponse() {
+    func test_load_generatesErrorOnNon200HTTPResponse() {
         let url = URL(string: "http://a-given-url.com")!
         let (sut, client) = makeSUT(url: url)
         let sampleCodes = [199, 201, 300, 400, 500]
@@ -57,7 +57,7 @@ class FeedsTests: XCTestCase {
         }
     }
 
-    func test_load_generateErrorOn200HTTPResponseWithInvalidJSON() {
+    func test_load_generatesErrorOn200HTTPResponseWithInvalidJSON() {
         let url = URL(string: "http://a-given-url.com")!
         let (sut, client) = makeSUT(url: url)
 
@@ -65,6 +65,10 @@ class FeedsTests: XCTestCase {
             let json = Data("invalid json".utf8)
             client.complete(withStatusCode: 200, data: json)
         }
+    }
+    
+    func test_load_generatesFeedListOn200HTTPResponseWithValidJSON() {
+        
     }
 
     // MARK: - Helpers
