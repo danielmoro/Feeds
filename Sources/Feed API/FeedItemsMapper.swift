@@ -25,7 +25,7 @@ internal enum FeedItemsMapper {
 
     internal static func map(data: Data, from response: HTTPURLResponse) -> RemoteFeedLoader.Result {
         guard response.statusCode == OK_200 else {
-            return .failure(.invalidData)
+            return .failure(RemoteFeedLoader.Error.invalidData)
         }
 
         do {
@@ -33,7 +33,7 @@ internal enum FeedItemsMapper {
             let items = root.images.map(\.item)
             return .success(items)
         } catch {
-            return .failure(.invalidData)
+            return .failure(RemoteFeedLoader.Error.invalidData)
         }
     }
 }
