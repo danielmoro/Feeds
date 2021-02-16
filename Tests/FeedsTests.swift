@@ -101,11 +101,31 @@ class FeedsTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT(url: URL) -> (sut: RemoteFeedLoader, client: HTTPClientSpy) {
+    private func makeSUT(
+        url: URL,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (sut: RemoteFeedLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
         let sut = RemoteFeedLoader(url: url, client: client)
-
+        trackMemoryLeaks(sut, file: file, line: line)
+        trackMemoryLeaks(client, file: file, line: line)
         return (sut, client)
+    }
+
+    private func trackMemoryLeaks(
+        _ instance: AnyObject,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        addTeardownBlock { [weak instance] in
+            XCTAssertNil(
+                instance,
+                "Instance should have been deallocated. Potential memory leak.",
+                file: file,
+                line: line
+            )
+        }
     }
 
     private func makeFeedItem(
