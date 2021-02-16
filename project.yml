@@ -8,6 +8,7 @@ targets:
       base:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
+        DEVELOPMENT_TEAM:: U848H8DYLE
     info:
         path: Sources/Info.plist
     prebuildScripts:
@@ -26,3 +27,6 @@ targets:
       base:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
+        DEVELOPMENT_TEAM:: U848H8DYLE
+    info:
+        path: Tests/Info.plist
