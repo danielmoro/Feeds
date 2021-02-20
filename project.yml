@@ -4,11 +4,6 @@ targets:
     sources: Sources
     type: framework
     platform: macOS
-    settings:
-      base:
-        CODE_SIGN_STYLE: Automatic
-        CODE_SIGN_IDENTITY: Apple Development
-        DEVELOPMENT_TEAM:: U848H8DYLE
     info:
         path: Sources/Info.plist
     prebuildScripts:
@@ -23,10 +18,5 @@ targets:
     platform: macOS
     dependencies:
       - target: Feeds
-    settings:
-      base:
-        CODE_SIGN_STYLE: Automatic
-        CODE_SIGN_IDENTITY: Apple Development
-        DEVELOPMENT_TEAM:: U848H8DYLE
     info:
         path: Tests/Info.plist
