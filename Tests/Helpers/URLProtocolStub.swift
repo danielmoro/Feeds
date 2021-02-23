@@ -7,6 +7,7 @@ import Foundation
 
 class URLProtocolStub: URLProtocol {
     private static var stubs: [URL: Stub] = [:]
+    private static var onRequest: ((URLRequest) -> Void)?
 
     private struct Stub {
         var error: Error?
@@ -27,11 +28,16 @@ class URLProtocolStub: URLProtocol {
         stubs = [:]
     }
 
+    static func handleRequest(_ request: @escaping ((URLRequest) -> Void)) {
+        onRequest = request
+    }
+
     override class func canInit(with request: URLRequest) -> Bool {
         guard let url = request.url else {
             return false
         }
 
+        onRequest?(request)
         return stubs[url] != nil
     }
 
