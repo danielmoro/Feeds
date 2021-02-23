@@ -26,21 +26,20 @@ class HTTPClientTests: XCTestCase {
         super.setUp()
         URLProtocolStub.startInterceptingURLRequests()
     }
-    
+
     override class func tearDown() {
         super.tearDown()
         URLProtocolStub.stopInterceptingURLRequests()
     }
-    
+
     func test_get_failsOnURLError() {
         let url = URL(string: "http://a-url.com")!
         let excpectedError = NSError(domain: "test error", code: 1)
 
         URLProtocolStub.stub(url: url, error: excpectedError)
-        let sut = URLSessionHTTPClient()
 
         let expectation = XCTestExpectation(description: "Wait forcompletion")
-        sut.get(from: url) { result in
+        makeSUT().get(from: url) { result in
             switch result {
             case let .failure(receivedError as NSError):
                 XCTAssertEqual(receivedError.code, excpectedError.code)
@@ -54,5 +53,27 @@ class HTTPClientTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
     }
 
+    func test_get_generateGETRequest() {
+        let url = URL(string: "http://a-url.com")!
+        URLProtocolStub.stub(url: url, error: nil)
+
+        let expectation = XCTestExpectation(description: "Wait for response")
+        URLProtocolStub.handleRequest { request in
+            XCTAssertEqual(request.url, url)
+            XCTAssertEqual(request.httpMethod, "GET")
+            expectation.fulfill()
+        }
+
+        makeSUT().get(from: url)
+
+        wait(for: [expectation], timeout: 1)
+    }
+
     // MARK: - Helpers
+
+    private func makeSUT() -> URLSessionHTTPClient {
+        let sut = URLSessionHTTPClient()
+
+        return sut
+    }
 }
