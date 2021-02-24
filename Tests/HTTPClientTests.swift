@@ -7,26 +7,6 @@ import Feeds
 import Foundation
 import XCTest
 
-class URLSessionHTTPClient: HTTPClient {
-    init() {}
-
-    private struct UnexpectedResponseError: Error {}
-
-    func get(from url: URL, completion: ((HTTPClientResult) -> Void)? = nil) {
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                completion?(.failure(error))
-            } else if let data = data, let response = response as? HTTPURLResponse {
-                completion?(.success(response, data))
-            } else {
-                completion?(.failure(UnexpectedResponseError()))
-            }
-        }
-
-        task.resume()
-    }
-}
-
 class HTTPClientTests: XCTestCase {
     override class func setUp() {
         super.setUp()
@@ -82,6 +62,7 @@ class HTTPClientTests: XCTestCase {
         URLProtocolStub.stub(error: nil)
 
         let expectation = XCTestExpectation(description: "Wait for completion")
+
         URLProtocolStub.observeRequest { request in
             XCTAssertEqual(request.url, url)
             XCTAssertEqual(request.httpMethod, "GET")
