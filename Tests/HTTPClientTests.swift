@@ -71,7 +71,7 @@ class HTTPClientTests: XCTestCase {
         URLProtocolStub.stub(error: nil)
 
         let expectation = XCTestExpectation(description: "Wait for response")
-        URLProtocolStub.handleRequest { request in
+        URLProtocolStub.observeRequest { request in
             XCTAssertEqual(request.url, url)
             XCTAssertEqual(request.httpMethod, "GET")
             expectation.fulfill()

@@ -7,7 +7,7 @@ import Foundation
 
 class URLProtocolStub: URLProtocol {
     private static var stub: Stub?
-    private static var onRequest: ((URLRequest) -> Void)?
+    private static var requestObserver: ((URLRequest) -> Void)?
 
     private struct Stub {
         var error: Error?
@@ -26,15 +26,15 @@ class URLProtocolStub: URLProtocol {
     static func stopInterceptingURLRequests() {
         URLProtocol.unregisterClass(URLProtocolStub.self)
         stub = nil
-        onRequest = nil
+        requestObserver = nil
     }
 
-    static func handleRequest(_ request: @escaping ((URLRequest) -> Void)) {
-        onRequest = request
+    static func observeRequest(_ observer: @escaping ((URLRequest) -> Void)) {
+        requestObserver = observer
     }
 
     override class func canInit(with request: URLRequest) -> Bool {
-        onRequest?(request)
+        requestObserver?(request)
         return true
     }
 
