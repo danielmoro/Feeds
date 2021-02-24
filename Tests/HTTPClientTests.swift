@@ -37,23 +37,24 @@ class HTTPClientTests: XCTestCase {
     }
 
     func test_get_failsOnRequestError() {
-        let excpectedError = NSError(domain: "test error", code: 1)
+        let excpectedError = anyNSError()
 
         let receivedError = resultErrorFor(error: excpectedError, response: nil, data: nil) as NSError?
         XCTAssertEqual(receivedError?.code, excpectedError.code)
         XCTAssertEqual(receivedError?.domain, excpectedError.domain)
     }
 
-    func test_get_failsOnError400Response() {
-        let httpResponse = HTTPURLResponse(url: anyURL(), statusCode: 400, httpVersion: nil, headerFields: nil)!
-
-        let receivedError = resultErrorFor(error: nil, response: httpResponse, data: nil)
-        XCTAssertNotNil(receivedError)
-    }
-
-    func test_get_failsOnAllNilValues() {
-        let receivedError = resultErrorFor(error: nil, response: nil, data: nil)
-        XCTAssertNotNil(receivedError)
+    func test_get_failsOnAllInvalidUnexpectedCases() {
+        XCTAssertNotNil(resultErrorFor(error: nil, response: nil, data: nil))
+        XCTAssertNotNil(resultErrorFor(error: nil, response: anyNonHTTPURLResponse(), data: nil))
+        XCTAssertNotNil(resultErrorFor(error: nil, response: anyHTTPURLResponse(), data: nil))
+        XCTAssertNotNil(resultErrorFor(error: nil, response: nil, data: anyData()))
+        XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: nil, data: anyData()))
+        XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: anyHTTPURLResponse(), data: nil))
+        XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: anyNonHTTPURLResponse(), data: nil))
+        XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: anyHTTPURLResponse(), data: anyData()))
+        XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: anyNonHTTPURLResponse(), data: anyData()))
+        XCTAssertNotNil(resultErrorFor(error: nil, response: anyNonHTTPURLResponse(), data: anyData()))
     }
 
     func test_get_generateGETRequest() {
@@ -86,6 +87,18 @@ class HTTPClientTests: XCTestCase {
 
     private func anyHTTPURLResponse() -> HTTPURLResponse {
         HTTPURLResponse(url: anyURL(), statusCode: 403, httpVersion: nil, headerFields: nil)!
+    }
+
+    private func anyNonHTTPURLResponse() -> URLResponse {
+        URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
+    }
+
+    private func anyData() -> Data {
+        Data("any data".utf8)
+    }
+
+    private func anyNSError() -> NSError {
+        NSError(domain: "any error", code: 1)
     }
 
     private func resultErrorFor(
