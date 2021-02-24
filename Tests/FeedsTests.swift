@@ -129,21 +129,6 @@ class FeedsTests: XCTestCase {
         return (sut, client)
     }
 
-    private func trackMemoryLeaks(
-        _ instance: AnyObject,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        addTeardownBlock { [weak instance] in
-            XCTAssertNil(
-                instance,
-                "Instance should have been deallocated. Potential memory leak.",
-                file: file,
-                line: line
-            )
-        }
-    }
-
     private func makeFeedItem(
         id: UUID, // swiftlint:disable:this identifier_name
         description: String? = nil,
@@ -205,18 +190,18 @@ class FeedsTests: XCTestCase {
     }
 
     private class HTTPClientSpy: HTTPClient {
-        var messages: [(url: URL, completion: (HTTPClientResult) -> Void)] = []
+        var messages: [(url: URL, completion: ((HTTPClientResult) -> Void)?)] = []
 
         var requestedURLs: [URL] {
             messages.map(\.url)
         }
 
-        func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
+        func get(from url: URL, completion: ((HTTPClientResult) -> Void)?) {
             messages.append((url, completion))
         }
 
         func complete(with error: Error, at index: Int = 0) {
-            messages[index].completion(.failure(error))
+            messages[index].completion?(.failure(error))
         }
 
         func complete(withStatusCode code: Int, data: Data, at index: Int = 0) {
@@ -226,7 +211,7 @@ class FeedsTests: XCTestCase {
                 httpVersion: nil,
                 headerFields: nil
             )!
-            messages[index].completion(.success(response, data))
+            messages[index].completion?(.success(response, data))
         }
     }
 }
