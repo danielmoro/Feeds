@@ -6,7 +6,7 @@
 import Foundation
 
 class URLProtocolStub: URLProtocol {
-    private static var stubs: [URL: Stub] = [:]
+    private static var stub: Stub?
     private static var onRequest: ((URLRequest) -> Void)?
 
     private struct Stub {
@@ -15,8 +15,8 @@ class URLProtocolStub: URLProtocol {
         var response: URLResponse?
     }
 
-    static func stub(url: URL, error: Error?) {
-        stubs[url] = Stub(error: error)
+    static func stub(error: Error? = nil, response: URLResponse? = nil, data: Data? = nil) {
+        stub = Stub(error: error, data: data, response: response)
     }
 
     static func startInterceptingURLRequests() {
@@ -25,7 +25,8 @@ class URLProtocolStub: URLProtocol {
 
     static func stopInterceptingURLRequests() {
         URLProtocol.unregisterClass(URLProtocolStub.self)
-        stubs = [:]
+        stub = nil
+        onRequest = nil
     }
 
     static func handleRequest(_ request: @escaping ((URLRequest) -> Void)) {
@@ -33,12 +34,8 @@ class URLProtocolStub: URLProtocol {
     }
 
     override class func canInit(with request: URLRequest) -> Bool {
-        guard let url = request.url else {
-            return false
-        }
-
         onRequest?(request)
-        return stubs[url] != nil
+        return true
     }
 
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
@@ -46,12 +43,16 @@ class URLProtocolStub: URLProtocol {
     }
 
     override func startLoading() {
-        guard let url = request.url, let stub = URLProtocolStub.stubs[url] else {
+        guard let stub = URLProtocolStub.stub else {
             return
         }
 
         if let error = stub.error {
             client?.urlProtocol(self, didFailWithError: error)
+        }
+
+        if let response = stub.response {
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         }
 
         client?.urlProtocolDidFinishLoading(self)
