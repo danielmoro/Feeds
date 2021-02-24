@@ -36,9 +36,9 @@ class HTTPClientTests: XCTestCase {
         URLProtocolStub.stopInterceptingURLRequests()
     }
 
-    func test_get_failsOnURLError() {
+    func test_get_failsOnRequestError() {
         let excpectedError = NSError(domain: "test error", code: 1)
-
+        
         let receivedError = resultErrorFor(error: excpectedError, response: nil, data: nil) as NSError?
         XCTAssertEqual(receivedError?.code, excpectedError.code)
         XCTAssertEqual(receivedError?.domain, excpectedError.domain)
@@ -78,7 +78,7 @@ class HTTPClientTests: XCTestCase {
     private func anyURL() -> URL {
         URL(string: "http://a-url.com")!
     }
-
+    
     private func anyHTTPURLResponse() -> HTTPURLResponse {
         HTTPURLResponse(url: anyURL(), statusCode: 403, httpVersion: nil, headerFields: nil)!
     }
@@ -92,7 +92,7 @@ class HTTPClientTests: XCTestCase {
     ) -> Error? {
         URLProtocolStub.stub(error: error, response: response, data: data)
 
-        var receivedError: Error?
+        var receivedError: Error? = nil
         let expectation = XCTestExpectation(description: "Wait for completion")
         makeSUT(file: file, line: line).get(from: anyURL()) { result in
             switch result {
@@ -105,7 +105,7 @@ class HTTPClientTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 1)
-
+        
         return receivedError
     }
 }
