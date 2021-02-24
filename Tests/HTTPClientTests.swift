@@ -81,21 +81,22 @@ class HTTPClientTests: XCTestCase {
         let url = anyURL()
         URLProtocolStub.stub(error: nil)
 
-        let expectation = XCTestExpectation(description: "Wait for response")
+        let expectation = XCTestExpectation(description: "Wait for completion")
         URLProtocolStub.observeRequest { request in
             XCTAssertEqual(request.url, url)
             XCTAssertEqual(request.httpMethod, "GET")
-            expectation.fulfill()
         }
 
-        makeSUT().get(from: url)
+        makeSUT().get(from: url, completion: { _ in
+            expectation.fulfill()
+        })
 
         wait(for: [expectation], timeout: 1)
     }
 
     // MARK: - Helpers
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> URLSessionHTTPClient {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> HTTPClient {
         let sut = URLSessionHTTPClient()
         trackMemoryLeaks(sut, file: file, line: line)
         return sut
