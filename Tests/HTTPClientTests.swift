@@ -59,11 +59,22 @@ class HTTPClientTests: XCTestCase {
     }
 
     func test_get_succeedsOnDataWithValidHTTPResponse() {
-        XCTAssertNotNil(resultValueFor(error: nil, response: anyHTTPURLResponse(), data: anyData()))
+        let data = anyData()
+        let response = anyHTTPURLResponse()
+        let result = resultValueFor(error: nil, response: response, data: data)
+
+        XCTAssertEqual(result?.data, data)
+        XCTAssertEqual(result?.response.url, response.url)
+        XCTAssertEqual(result?.response.statusCode, response.statusCode)
     }
 
     func test_get_succeedsOnValidHTTPResponseWithNilData() {
-        XCTAssertNotNil(resultValueFor(error: nil, response: anyHTTPURLResponse(), data: nil))
+        let response = anyHTTPURLResponse()
+        let result = resultValueFor(error: nil, response: response, data: nil)
+
+        XCTAssertEqual(result?.data, Data())
+        XCTAssertEqual(result?.response.url, response.url)
+        XCTAssertEqual(result?.response.statusCode, response.statusCode)
     }
 
     func test_get_generateGETRequest() {
