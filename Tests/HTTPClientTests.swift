@@ -13,9 +13,11 @@ class URLSessionHTTPClient: HTTPClient {
     private struct UnexpectedResponseError: Error {}
 
     func get(from url: URL, completion: ((HTTPClientResult) -> Void)? = nil) {
-        let task = URLSession.shared.dataTask(with: url) { _, _, error in
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
                 completion?(.failure(error))
+            } else if let data = data, let response = response as? HTTPURLResponse {
+                completion?(.success(response, data))
             } else {
                 completion?(.failure(UnexpectedResponseError()))
             }
@@ -47,7 +49,6 @@ class HTTPClientTests: XCTestCase {
     func test_get_failsOnAllInvalidUnexpectedCases() {
         XCTAssertNotNil(resultErrorFor(error: nil, response: nil, data: nil))
         XCTAssertNotNil(resultErrorFor(error: nil, response: anyNonHTTPURLResponse(), data: nil))
-        XCTAssertNotNil(resultErrorFor(error: nil, response: anyHTTPURLResponse(), data: nil))
         XCTAssertNotNil(resultErrorFor(error: nil, response: nil, data: anyData()))
         XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: nil, data: anyData()))
         XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: anyHTTPURLResponse(), data: nil))
@@ -55,6 +56,14 @@ class HTTPClientTests: XCTestCase {
         XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: anyHTTPURLResponse(), data: anyData()))
         XCTAssertNotNil(resultErrorFor(error: anyNSError(), response: anyNonHTTPURLResponse(), data: anyData()))
         XCTAssertNotNil(resultErrorFor(error: nil, response: anyNonHTTPURLResponse(), data: anyData()))
+    }
+
+    func test_get_succeedsOnDataWithValidHTTPResponse() {
+        XCTAssertNotNil(resultValueFor(error: nil, response: anyHTTPURLResponse(), data: anyData()))
+    }
+
+    func test_get_succeedsOnValidHTTPResponseWithNilData() {
+        XCTAssertNotNil(resultValueFor(error: nil, response: anyHTTPURLResponse(), data: nil))
     }
 
     func test_get_generateGETRequest() {
@@ -111,19 +120,54 @@ class HTTPClientTests: XCTestCase {
         URLProtocolStub.stub(error: error, response: response, data: data)
 
         var receivedError: Error?
+        let result = resultFor(error: error, response: response, data: data, file: file, line: line)
+        switch result {
+        case let .failure(error):
+            receivedError = error
+        default:
+            XCTFail("expected failure, got \(result) instead")
+        }
+
+        return receivedError
+    }
+
+    private func resultValueFor(
+        error: Error? = nil,
+        response: URLResponse? = nil,
+        data: Data? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (response: HTTPURLResponse, data: Data)? {
+        var receivedValue: (response: HTTPURLResponse, data: Data)?
+        let result = resultFor(error: error, response: response, data: data, file: file, line: line)
+        switch result {
+        case let .success(response, data):
+            receivedValue = (response, data)
+        default:
+            XCTFail("expected success, got \(result) instead")
+        }
+
+        return receivedValue
+    }
+
+    private func resultFor(
+        error: Error? = nil,
+        response: URLResponse? = nil,
+        data: Data? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> HTTPClientResult {
+        URLProtocolStub.stub(error: error, response: response, data: data)
+
+        var receivedResult: HTTPClientResult!
         let expectation = XCTestExpectation(description: "Wait for completion")
         makeSUT(file: file, line: line).get(from: anyURL()) { result in
-            switch result {
-            case let .failure(error):
-                receivedError = error
-            default:
-                XCTFail("expected failure, got \(result) instead")
-            }
+            receivedResult = result
             expectation.fulfill()
         }
 
         wait(for: [expectation], timeout: 1)
 
-        return receivedError
+        return receivedResult
     }
 }
