@@ -14,9 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: xavierLowmiller/xcodegen-action@1.0.0
-      with:
-        project: "../Feeds.xcodeproj"
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+    - name: Select Xcode
+      run: sudo xcode-select -switch /Applications/Xcode_12.app
+
+    - name: Build and test
+      run: xcodebuild clean build test -scheme "Feeds"
