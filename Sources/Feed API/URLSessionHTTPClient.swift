@@ -5,12 +5,12 @@
 
 import Foundation
 
-class URLSessionHTTPClient: HTTPClient {
-    init() {}
+public class URLSessionHTTPClient: HTTPClient {
+    public init() {}
 
     private struct UnexpectedResponseError: Error {}
 
-    func get(from url: URL, completion: ((HTTPClientResult) -> Void)? = nil) {
+    public func get(from url: URL, completion: ((HTTPClientResult) -> Void)? = nil) {
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
                 completion?(.failure(error))
