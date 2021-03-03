@@ -17,6 +17,8 @@ jobs:
       with:
         spec: project.yaml
         quiet: true
+    - name: Generate Project
+      run: xcodegen
     - name: Build
       run: swift build -v
     - name: Run tests
