@@ -8,7 +8,6 @@ targets:
       base:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
-        DEVELOPMENT_TEAM:: U848H8DYLE
     info:
         path: Sources/Info.plist
     prebuildScripts:
@@ -17,6 +16,10 @@ targets:
                 swiftlint autocorrrect
                 swiftlint lint
         name: Build Tools
+    scheme:
+      testTargets:
+        - FeedsTests
+      gatherCoverageData: true
   FeedsTests:
     sources: Tests
     type: bundle.unit-test
@@ -24,9 +27,8 @@ targets:
     dependencies:
       - target: Feeds
     settings:
-      base:
-        CODE_SIGN_STYLE: Automatic
-        CODE_SIGN_IDENTITY: Apple Development
-        DEVELOPMENT_TEAM:: U848H8DYLE
+#      base:
+#        CODE_SIGN_STYLE: Automatic
+#        CODE_SIGN_IDENTITY: Sign to Run Lcally
     info:
         path: Tests/Info.plist
