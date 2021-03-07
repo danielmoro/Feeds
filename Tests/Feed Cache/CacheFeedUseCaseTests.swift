@@ -33,11 +33,13 @@ class FeedStore {
 }
 
 class LocalFeedLoader {
-    init(store: FeedStore) {
+    init(store: FeedStore, currentDate: @escaping () -> Date) {
         self.store = store
+        self.currentDate = currentDate
     }
 
     var store: FeedStore
+    var currentDate: () -> Date
 
     func save(_: [FeedItem]) {
         store.deleteCacheFeed { [weak self] error in
@@ -51,7 +53,6 @@ class LocalFeedLoader {
 class CacheFeedUseCaseTests: XCTestCase {
     func test_init_doesNotDeleteCacheUponCreation() {
         let (_, store) = makeSUT()
-        _ = LocalFeedLoader(store: store)
 
         XCTAssertEqual(store.deleteCachedFeedCalloutCount, 0)
     }
@@ -83,14 +84,25 @@ class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertEqual(store.insertCachedFeedCalloutCount, 1)
     }
 
+    func test_save_requestNewCacheInsertionwithTimestampOnSucessfulDeletion() {
+        let currentDate = Date()
+        let (sut, store) = makeSUT(currentDate: { currentDate })
+        let items = [uniqueItem(), uniqueItem()]
+        sut.save(items)
+        store.completeDeletionSuccesfully(at: 0)
+
+        XCTAssertEqual(store.insertCachedFeedCalloutCount, 1)
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(
+        currentDate: @escaping () -> Date = Date.init,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (sut: LocalFeedLoader, store: FeedStore) {
         let store = FeedStore()
-        let sut = LocalFeedLoader(store: store)
+        let sut = LocalFeedLoader(store: store, currentDate: currentDate)
         trackMemoryLeaks(sut, file: file, line: line)
         trackMemoryLeaks(store, file: file, line: line)
         return (sut: sut, store: store)
