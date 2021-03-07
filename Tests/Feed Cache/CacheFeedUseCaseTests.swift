@@ -8,10 +8,13 @@ import XCTest
 
 class FeedStore {
     var deleteCachedFeedCalloutCount: Int = 0
+    var insertCachedFeedCalloutCount: Int = 0
 
     func deleteCacheFeed() {
         deleteCachedFeedCalloutCount += 1
     }
+
+    func completeDeletion(with _: Error, at _: Int) {}
 }
 
 class LocalFeedLoader {
@@ -42,9 +45,38 @@ class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertEqual(store.deleteCachedFeedCalloutCount, 1)
     }
 
+//    func test_save_doesNotRequestInsertionIfDeletionFails() {
+//        let (sut, store) = makeSUT()
+//        let items = [uniqueItem(), uniqueItem()]
+//        let expectedError = anyNSError()
+//        store.deletionError = expectedError
+//
+//        let exp = XCTestExpectation(description: "wait for save completion")
+//        sut.save(items) { error in
+//            XCTAssertEqual(error as NSError?, expectedError)
+//            exp.fulfill()
+//        }
+//
+//        wait(for: [exp], timeout: 1)
+//
+//    }
+
+    func test_save_doesNotRequestInsertionOnDeletionError() {
+        let (sut, store) = makeSUT()
+        let items = [uniqueItem(), uniqueItem()]
+        let deletionError = anyNSError()
+        sut.save(items)
+        store.completeDeletion(with: deletionError, at: 0)
+
+        XCTAssertEqual(store.insertCachedFeedCalloutCount, 0)
+    }
+
     // MARK: - Helpers
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: LocalFeedLoader, store: FeedStore) {
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (sut: LocalFeedLoader, store: FeedStore) {
         let store = FeedStore()
         let sut = LocalFeedLoader(store: store)
         trackMemoryLeaks(sut, file: file, line: line)
@@ -58,5 +90,9 @@ class CacheFeedUseCaseTests: XCTestCase {
 
     private func anyURL() -> URL {
         URL(string: "http://a-url.com")!
+    }
+
+    private func anyNSError() -> NSError {
+        NSError(domain: "any error", code: 1)
     }
 }
