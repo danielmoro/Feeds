@@ -12,6 +12,7 @@ class FeedStore {
     var deleteCachedFeedCalloutCount: Int = 0
     var insertCachedFeedCalloutCount: Int = 0
 
+    var insertions: [(items: [FeedItem], timestamp: Date)] = []
     var deletionCompletions: [DeletionCompletion] = []
 
     func deleteCacheFeed(completion: @escaping DeletionCompletion) {
@@ -19,8 +20,9 @@ class FeedStore {
         deletionCompletions.append(completion)
     }
 
-    func insertCasheFeed() {
+    func insert(items: [FeedItem], timestamp: Date) {
         insertCachedFeedCalloutCount += 1
+        insertions.append((items, timestamp))
     }
 
     func completeDeletion(with error: Error, at index: Int) {
@@ -30,6 +32,8 @@ class FeedStore {
     func completeDeletionSuccesfully(at index: Int) {
         deletionCompletions[index](nil)
     }
+
+    func completeInsertion(with _: [FeedItem], at _: Int) {}
 }
 
 class LocalFeedLoader {
@@ -41,10 +45,11 @@ class LocalFeedLoader {
     var store: FeedStore
     var currentDate: () -> Date
 
-    func save(_: [FeedItem]) {
+    func save(_ items: [FeedItem]) {
         store.deleteCacheFeed { [weak self] error in
+            guard let self = self else { return }
             if error == nil {
-                self?.store.insertCasheFeed()
+                self.store.insert(items: items, timestamp: self.currentDate())
             }
         }
     }
@@ -85,13 +90,15 @@ class CacheFeedUseCaseTests: XCTestCase {
     }
 
     func test_save_requestNewCacheInsertionwithTimestampOnSucessfulDeletion() {
-        let currentDate = Date()
-        let (sut, store) = makeSUT(currentDate: { currentDate })
+        let timeStamp = Date()
+        let (sut, store) = makeSUT(currentDate: { timeStamp })
         let items = [uniqueItem(), uniqueItem()]
         sut.save(items)
         store.completeDeletionSuccesfully(at: 0)
 
-        XCTAssertEqual(store.insertCachedFeedCalloutCount, 1)
+        XCTAssertEqual(store.insertions.count, 1)
+        XCTAssertEqual(store.insertions.first?.items, items)
+        XCTAssertEqual(store.insertions.first?.timestamp, timeStamp)
     }
 
     // MARK: - Helpers
