@@ -10,17 +10,19 @@ class FeedStore {
 }
 
 class LocalFeedLoader {
-    init(client: FeedStore) {
-        self.client = client
+    init(store: FeedStore) {
+        self.store = store
     }
 
-    var client: FeedStore
+    var store: FeedStore
+    
+    
 }
 
 class CacheFeedUseCaseTests: XCTestCase {
     func test_init_doesNotDeleteCacheUponCreation() {
         let client = FeedStore()
-        _ = LocalFeedLoader(client: client)
+        _ = LocalFeedLoader(store: client)
 
         XCTAssertEqual(client.deleteCachedFeedCalloutCount, 0)
     }
