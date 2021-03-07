@@ -47,12 +47,13 @@ class LocalFeedLoader {
     var store: FeedStore
     var currentDate: () -> Date
 
-    func save(_ items: [FeedItem]) {
+    func save(_ items: [FeedItem], completion: @escaping (Error?) -> Void) {
         store.deleteCacheFeed { [weak self] error in
             guard let self = self else { return }
             if error == nil {
                 self.store.insert(items: items, timestamp: self.currentDate())
             }
+            completion(error)
         }
     }
 }
@@ -67,7 +68,8 @@ class CacheFeedUseCaseTests: XCTestCase {
     func test_save_requestCacheDeletion() {
         let (sut, store) = makeSUT()
         let items = [uniqueItem(), uniqueItem()]
-        sut.save(items)
+
+        sut.save(items) { _ in }
 
         XCTAssertEqual(store.receivedMessages, [.delete])
     }
@@ -76,7 +78,8 @@ class CacheFeedUseCaseTests: XCTestCase {
         let (sut, store) = makeSUT()
         let items = [uniqueItem(), uniqueItem()]
         let deletionError = anyNSError()
-        sut.save(items)
+
+        sut.save(items) { _ in }
         store.completeDeletion(with: deletionError, at: 0)
 
         XCTAssertEqual(store.receivedMessages, [.delete])
@@ -86,10 +89,27 @@ class CacheFeedUseCaseTests: XCTestCase {
         let timeStamp = Date()
         let (sut, store) = makeSUT(currentDate: { timeStamp })
         let items = [uniqueItem(), uniqueItem()]
-        sut.save(items)
+
+        sut.save(items) { _ in }
         store.completeDeletionSuccesfully(at: 0)
 
         XCTAssertEqual(store.receivedMessages, [.delete, .insert(items: items, timestamp: timeStamp)])
+    }
+
+    func test_save_failOnDeletionError() {
+        let (sut, store) = makeSUT()
+        let items = [uniqueItem(), uniqueItem()]
+        let deletionError = anyNSError()
+
+        let exp = XCTestExpectation(description: "wait for save completion")
+        sut.save(items) { error in
+            XCTAssertEqual(error as NSError?, deletionError)
+            exp.fulfill()
+        }
+
+        store.completeDeletion(with: deletionError, at: 0)
+
+        XCTAssertEqual(store.receivedMessages, [.delete])
     }
 
     // MARK: - Helpers
