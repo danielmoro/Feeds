@@ -25,11 +25,18 @@ class LocalFeedLoader {
     func save(_ items: [FeedItem], completion: @escaping (Error?) -> Void) {
         store.deleteCacheFeed { [weak self] error in
             guard let self = self else { return }
-            if error == nil {
-                self.store.insert(items: items, timestamp: self.currentDate(), completion: completion)
+            if let deleteCacheError = error {
+                completion(deleteCacheError)
             } else {
-                completion(error)
+                self.cache(items: items, completion: completion)
             }
+        }
+    }
+
+    func cache(items: [FeedItem], completion: @escaping (Error?) -> Void) {
+        store.insert(items: items, timestamp: currentDate()) { [weak self] error in
+            guard self != nil else { return }
+            completion(error)
         }
     }
 }
@@ -103,6 +110,39 @@ class CacheFeedUseCaseTests: XCTestCase {
         }
     }
 
+    func test_save_doesNotDeliverDeletionErrorAfterSUTInstanceHasBeenDeallocated() {
+        let store = FeedStoreSpy()
+        var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: { Date() })
+        let items = [uniqueItem(), uniqueItem()]
+
+        var receivedMessages: [Error?] = []
+        sut?.save(items) { error in
+            receivedMessages.append(error)
+        }
+
+        sut = nil
+        store.completeDeletion(with: anyNSError(), at: 0)
+
+        XCTAssertEqual(receivedMessages.count, 0)
+    }
+
+    func test_save_doesNotDeliverInsertionErrorAfterSUTInstanceHasBeenDeallocated() {
+        let store = FeedStoreSpy()
+        var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
+        let items = [uniqueItem(), uniqueItem()]
+
+        var receivedMessages: [Error?] = []
+        sut?.save(items) { error in
+            receivedMessages.append(error)
+        }
+
+        store.completeDeletionSuccesfully(at: 0)
+        sut = nil
+        store.completeInsertion(with: anyNSError(), at: 0)
+
+        XCTAssertEqual(receivedMessages.count, 0)
+    }
+
     // MARK: - Helpers
 
     private class FeedStoreSpy: FeedStore {
@@ -156,7 +196,7 @@ class CacheFeedUseCaseTests: XCTestCase {
     }
 
     private func expect(
-        _ sut: LocalFeedLoader,
+        _ sut: LocalFeedLoader?,
         toCompleteWithError expectedError: Error?,
         when action: () -> Void,
         file: StaticString = #filePath,
@@ -166,7 +206,7 @@ class CacheFeedUseCaseTests: XCTestCase {
 
         let exp = XCTestExpectation(description: "wait for save completion")
         var receivedError: Error?
-        sut.save(items) { error in
+        sut?.save(items) { error in
             receivedError = error
             exp.fulfill()
         }
