@@ -9,7 +9,8 @@ import XCTest
 class FeedStore {
     typealias Completion = (Error?) -> Void
 
-    var completions: [Completion] = []
+    var deletionCompletions: [Completion] = []
+    var insertionCompletions: [Completion] = []
 
     enum ReceivedMessage: Equatable {
         case insert(items: [FeedItem], timestamp: Date)
@@ -19,27 +20,29 @@ class FeedStore {
     var receivedMessages: [ReceivedMessage] = []
 
     func deleteCacheFeed(completion: @escaping Completion) {
-        completions.append(completion)
+        deletionCompletions.append(completion)
         receivedMessages.append(.delete)
     }
 
     func insert(items: [FeedItem], timestamp: Date, completion: @escaping Completion) {
-        completions.append(completion)
+        insertionCompletions.append(completion)
         receivedMessages.append(.insert(items: items, timestamp: timestamp))
     }
 
     func completeDeletion(with error: Error, at index: Int) {
-        completions[index](error)
+        deletionCompletions[index](error)
     }
 
     func completeDeletionSuccesfully(at index: Int) {
-        completions[index](nil)
+        deletionCompletions[index](nil)
     }
 
-    func completeInsertion(with _: [FeedItem], at _: Int) {}
+    func completeInsertion(with _: [FeedItem], at index: Int) {
+        insertionCompletions[index](nil)
+    }
 
     func completeInsertion(with error: Error, at index: Int) {
-        completions[index](error)
+        insertionCompletions[index](error)
     }
 }
 
@@ -115,6 +118,7 @@ class CacheFeedUseCaseTests: XCTestCase {
 
         store.completeDeletion(with: deletionError, at: 0)
 
+        wait(for: [exp], timeout: 1)
         XCTAssertEqual(store.receivedMessages, [.delete])
     }
 
@@ -133,7 +137,27 @@ class CacheFeedUseCaseTests: XCTestCase {
         store.completeDeletionSuccesfully(at: 0)
         store.completeInsertion(with: insertionError, at: 0)
 
+        wait(for: [exp], timeout: 1)
         XCTAssertEqual(store.receivedMessages, [.delete, .insert(items: items, timestamp: timeStamp)])
+    }
+
+    func test_save_succedsOnSuccessfulInsertion() {
+        let timeStamp = Date()
+        let (sut, store) = makeSUT(currentDate: { timeStamp })
+        let items = [uniqueItem(), uniqueItem()]
+
+        let exp = XCTestExpectation(description: "wait for save completion")
+        var receivedError: Error?
+        sut.save(items) { error in
+            receivedError = error
+            exp.fulfill()
+        }
+
+        store.completeDeletionSuccesfully(at: 0)
+        store.completeInsertion(with: items, at: 0)
+
+        wait(for: [exp], timeout: 1)
+        XCTAssertNil(receivedError)
     }
 
     // MARK: - Helpers
