@@ -5,21 +5,21 @@
 
 import Foundation
 
-public struct FeedItem: Equatable {
+public struct FeedImage: Equatable {
     public init(
         id: UUID, // swiftlint:disable:this identifier_name
         description: String?,
         location: String?,
-        imageURL: URL
+        url: URL
     ) {
         self.id = id
         self.description = description
         self.location = location
-        self.imageURL = imageURL
+        self.url = url
     }
 
     public let id: UUID // swiftlint:disable:this identifier_name
     public let description: String?
     public let location: String?
-    public let imageURL: URL
+    public let url: URL
 }

@@ -34,11 +34,11 @@ class CacheFeedUseCaseTests: XCTestCase {
     func test_save_requestNewCacheInsertionwithTimestampOnSucessfulDeletion() {
         let timeStamp = Date()
         let (sut, store) = makeSUT(currentDate: { timeStamp })
-        let items = uniqueImageFeed()
-        sut.save(items.models) { _ in }
+        let feed = uniqueImageFeed()
+        sut.save(feed.models) { _ in }
         store.completeDeletionSuccesfully(at: 0)
 
-        XCTAssertEqual(store.receivedMessages, [.delete, .insert(items: items.local, timestamp: timeStamp)])
+        XCTAssertEqual(store.receivedMessages, [.delete, .insert(feed: feed.local, timestamp: timeStamp)])
     }
 
     func test_save_failOnDeletionError() {
@@ -109,7 +109,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         var insertionCompletions: [Completion] = []
 
         enum ReceivedMessage: Equatable {
-            case insert(items: [LocalFeedImage], timestamp: Date)
+            case insert(feed: [LocalFeedImage], timestamp: Date)
             case delete
         }
 
@@ -120,9 +120,9 @@ class CacheFeedUseCaseTests: XCTestCase {
             receivedMessages.append(.delete)
         }
 
-        func insert(items: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
+        func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
             insertionCompletions.append(completion)
-            receivedMessages.append(.insert(items: items, timestamp: timestamp))
+            receivedMessages.append(.insert(feed: feed, timestamp: timestamp))
         }
 
         func completeDeletion(with error: Error, at index: Int) {
@@ -133,7 +133,7 @@ class CacheFeedUseCaseTests: XCTestCase {
             deletionCompletions[index](nil)
         }
 
-        func completeInsertion(with _: [FeedItem], at index: Int) {
+        func completeInsertion(with _: [FeedImage], at index: Int) {
             insertionCompletions[index](nil)
         }
 
@@ -174,22 +174,22 @@ class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertEqual(receivedError as NSError?, expectedError as NSError?, file: file, line: line)
     }
 
-    private func uniqueImage() -> FeedItem {
-        FeedItem(id: UUID(), description: nil, location: nil, imageURL: anyURL())
+    private func uniqueImage() -> FeedImage {
+        FeedImage(id: UUID(), description: nil, location: nil, url: anyURL())
     }
 
-    private func uniqueImageFeed() -> (models: [FeedItem], local: [LocalFeedImage]) {
-        let items = [uniqueImage(), uniqueImage()]
-        let localItems = items.map {
+    private func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
+        let feed = [uniqueImage(), uniqueImage()]
+        let localImageFeed = feed.map {
             LocalFeedImage(
                 id: $0.id,
                 description: $0.description,
                 location: $0.location,
-                imageURL: $0.imageURL
+                url: $0.url
             )
         }
 
-        return (items, localItems)
+        return (feed, localImageFeed)
     }
 
     private func anyURL() -> URL {

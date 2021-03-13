@@ -10,12 +10,12 @@ public struct LocalFeedImage: Equatable {
         id: UUID, // swiftlint:disable:this identifier_name
         description: String?,
         location: String?,
-        imageURL: URL
+        url: URL
     ) {
         self.id = id
         self.description = description
         self.location = location
-        url = imageURL
+        self.url = url
     }
 
     public let id: UUID // swiftlint:disable:this identifier_name
