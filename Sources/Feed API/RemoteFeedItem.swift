@@ -1,8 +1,6 @@
 //
-//  RemoteFeedItem.swift
-//  Feeds
-//
-//  Created by Daniel Moro on 13.3.21..
+//  Created by Daniel Moro on 13.3.21.
+//  Copyright © 2021 Daniel Moro. All rights reserved.
 //
 
 import Foundation
