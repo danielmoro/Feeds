@@ -1,0 +1,21 @@
+name: Swift
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: xavierLowmiller/xcodegen-action@1.0.0
+    - name: Select Xcode
+      run: sudo xcode-select -switch /Applications/Xcode_12.app
+
+    - name: Build and test
+      run: xcodebuild clean build test -scheme Feeds

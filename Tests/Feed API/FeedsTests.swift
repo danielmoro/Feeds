@@ -80,22 +80,22 @@ class FeedsTests: XCTestCase {
         let url = URL(string: "http://a-given-url.com")!
         let (sut, client) = makeSUT(url: url)
 
-        let item1 = makeFeedItem(
+        let image1 = makeFeedImage(
             id: UUID(),
             description: nil,
             location: nil,
-            imageURL: URL(string: "http://a-image-url.com")!
+            url: URL(string: "http://a-image-url.com")!
         )
 
-        let item2 = makeFeedItem(
+        let image2 = makeFeedImage(
             id: UUID(),
             description: "item description",
             location: "item location",
-            imageURL: URL(string: "http://another-image-url.com")!
+            url: URL(string: "http://another-image-url.com")!
         )
 
-        expect(sut, toFinishWith: .success([item1.model, item2.model])) {
-            client.complete(withStatusCode: 200, data: makeItemsJSON(items: [item1.json, item2.json]))
+        expect(sut, toFinishWith: .success([image1.model, image2.model])) {
+            client.complete(withStatusCode: 200, data: makeItemsJSON(items: [image1.json, image2.json]))
         }
     }
 
@@ -129,27 +129,27 @@ class FeedsTests: XCTestCase {
         return (sut, client)
     }
 
-    private func makeFeedItem(
+    private func makeFeedImage(
         id: UUID, // swiftlint:disable:this identifier_name
         description: String? = nil,
         location: String? = nil,
-        imageURL: URL
-    ) -> (model: FeedItem, json: [String: Any]) {
-        let item = FeedItem(
+        url: URL
+    ) -> (model: FeedImage, json: [String: Any]) {
+        let image = FeedImage(
             id: id,
             description: description,
             location: location,
-            imageURL: imageURL
+            url: url
         )
 
         let json = [
-            "id": item.id.uuidString,
-            "description": item.description,
-            "location": item.location,
-            "image": item.imageURL.absoluteString,
+            "id": image.id.uuidString,
+            "description": image.description,
+            "location": image.location,
+            "image": image.url.absoluteString,
         ].compactMapValues { $0 }
 
-        return (item, json)
+        return (image, json)
     }
 
     private func makeItemsJSON(items: [[String: Any]]) -> Data {
@@ -175,7 +175,10 @@ class FeedsTests: XCTestCase {
             switch (receivedResult, expectedResult) {
             case let (.success(receivedItems), .success(expectedItems)):
                 XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
-            case let (.failure(receivedError as RemoteFeedLoader.Error), .failure(expectedError as RemoteFeedLoader.Error)):
+            case let (
+                .failure(receivedError as RemoteFeedLoader.Error),
+                .failure(expectedError as RemoteFeedLoader.Error)
+            ):
                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
             default:
                 XCTFail("Expected \(expectedResult) received \(receivedResult)", file: file, line: line)

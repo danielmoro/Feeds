@@ -4,11 +4,13 @@ targets:
     sources: Sources
     type: framework
     platform: macOS
+    deploymentTarget:
+      macOS: 11.0
     settings:
       base:
+        MACOSX_DEPLOYMENT_TARGET: 11.0
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
-        DEVELOPMENT_TEAM:: U848H8DYLE
     info:
         path: Sources/Info.plist
     prebuildScripts:
@@ -17,6 +19,10 @@ targets:
                 swiftlint autocorrrect
                 swiftlint lint
         name: Build Tools
+    scheme:
+      testTargets:
+        - FeedsTests
+      gatherCoverageData: true
   FeedsTests:
     sources: Tests
     type: bundle.unit-test
@@ -24,9 +30,15 @@ targets:
     dependencies:
       - target: Feeds
     settings:
-      base:
-        CODE_SIGN_STYLE: Automatic
-        CODE_SIGN_IDENTITY: Apple Development
-        DEVELOPMENT_TEAM:: U848H8DYLE
+      MACOSX_DEPLOYMENT_TARGET: 11.0
+#      base:
+#        CODE_SIGN_STYLE: Automatic
+#        CODE_SIGN_IDENTITY: Sign to Run Lcally
     info:
         path: Tests/Info.plist
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
