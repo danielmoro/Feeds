@@ -17,44 +17,6 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private class FeedStoreSpy: FeedStore {
-        var deletionCompletions: [Completion] = []
-        var insertionCompletions: [Completion] = []
-
-        enum ReceivedMessage: Equatable {
-            case insert(feed: [LocalFeedImage], timestamp: Date)
-            case delete
-        }
-
-        var receivedMessages: [ReceivedMessage] = []
-
-        func deleteCacheFeed(completion: @escaping Completion) {
-            deletionCompletions.append(completion)
-            receivedMessages.append(.delete)
-        }
-
-        func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
-            insertionCompletions.append(completion)
-            receivedMessages.append(.insert(feed: feed, timestamp: timestamp))
-        }
-
-        func completeDeletion(with error: Error, at index: Int) {
-            deletionCompletions[index](error)
-        }
-
-        func completeDeletionSuccesfully(at index: Int) {
-            deletionCompletions[index](nil)
-        }
-
-        func completeInsertion(with _: [FeedImage], at index: Int) {
-            insertionCompletions[index](nil)
-        }
-
-        func completeInsertion(with error: Error, at index: Int) {
-            insertionCompletions[index](error)
-        }
-    }
-
     private func makeSUT(
         currentDate: @escaping () -> Date = Date.init,
         file: StaticString = #filePath,
