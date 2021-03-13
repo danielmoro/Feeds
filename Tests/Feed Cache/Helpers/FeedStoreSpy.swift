@@ -11,7 +11,7 @@ import Foundation
 internal class FeedStoreSpy: FeedStore {
     private var deletionCompletions: [Completion] = []
     private var insertionCompletions: [Completion] = []
-    private var retreivalCompletions: [Completion] = []
+    private var retreivalCompletions: [RetreivalCompletion] = []
 
     internal enum ReceivedMessage: Equatable {
         case insert(feed: [LocalFeedImage], timestamp: Date)
@@ -31,7 +31,7 @@ internal class FeedStoreSpy: FeedStore {
         receivedMessages.append(.insert(feed: feed, timestamp: timestamp))
     }
 
-    func retreive(completion: @escaping Completion) {
+    func retreive(completion: @escaping RetreivalCompletion) {
         retreivalCompletions.append(completion)
         receivedMessages.append(.retrieve)
     }
@@ -53,6 +53,10 @@ internal class FeedStoreSpy: FeedStore {
     }
 
     internal func completeRetreival(with error: Error, at index: Int) {
-        retreivalCompletions[index](error)
+        retreivalCompletions[index](.failure(error))
+    }
+
+    internal func completeRetreivalWithEmptyCache(at index: Int) {
+        retreivalCompletions[index](.success([]))
     }
 }
