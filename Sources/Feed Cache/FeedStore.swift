@@ -10,5 +10,5 @@ public protocol FeedStore {
 
     func deleteCacheFeed(completion: @escaping Completion)
     func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion)
-    func retreive()
+    func retreive(completion: @escaping Completion)
 }
