@@ -77,11 +77,15 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
         switch (expectedResult, receivedResult) {
         case let (.success(expectedImages), .success(receivedImages)):
-            XCTAssertEqual(expectedImages, receivedImages)
-        case let (.failure(expectedError as NSError?), .failure(receivedError as NSError?)):
-            XCTAssertEqual(expectedError, receivedError)
+            XCTAssertEqual(expectedImages, receivedImages, file: file, line: line)
+        case let (.failure(expectedError as NSError), .failure(receivedError as NSError)):
+            XCTAssertEqual(expectedError, receivedError, file: file, line: line)
         default:
-            XCTFail("expected to receive \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            XCTFail(
+                "expected to receive \(expectedResult), got \(String(describing: receivedResult)) instead",
+                file: file,
+                line: line
+            )
         }
     }
 }
