@@ -1,8 +1,6 @@
 //
-//  LoadFeedFromCacheUseCaseTests.swift
-//  FeedsTests
-//
-//  Created by Daniel Moro on 13.3.21..
+//  Created by Daniel Moro on 13.3.21.
+//  Copyright © 2021 Daniel Moro. All rights reserved.
 //
 
 import Feeds
@@ -35,7 +33,7 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
     func test_load_deliverNoImagesOnEmptyCache() {
         let (sut, store) = makeSUT()
 
-        expect(sut, toCompleteWith: .empty) {
+        expect(sut, toCompleteWith: .success([])) {
             store.completeRetreivalWithEmptyCache(at: 0)
         }
     }
@@ -45,7 +43,7 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         let feed = uniqueImageFeed()
         let currentDate = Date()
         let lessThanSevenDaysOldTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
-        expect(sut, toCompleteWith: .found(feed: feed.local, timestamp: lessThanSevenDaysOldTimestamp)) {
+        expect(sut, toCompleteWith: .success(feed.models)) {
             store.completeRetreival(with: feed.local, timestamp: lessThanSevenDaysOldTimestamp, at: 0)
         }
     }
@@ -70,12 +68,12 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
     private func expect(
         _ sut: LocalFeedLoader,
-        toCompleteWith expectedResult: LocalFeedLoader.LoadResult,
+        toCompleteWith expectedResult: LoadFeedResult,
         when action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        var receivedResult: LocalFeedLoader.LoadResult?
+        var receivedResult: LoadFeedResult?
         let exp = XCTestExpectation(description: "wait for retreival completion")
         sut.load { result in
             receivedResult = result
@@ -86,14 +84,8 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
 
         switch (expectedResult, receivedResult) {
-        case (.empty, .empty):
-            XCTAssertTrue(true)
-        case let (
-            .found(feed: expectedImages, timestamp: expectedTimestamp),
-            .found(feed: receivedImages, timestamp: receivedTimestamp)
-        ):
+        case let (.success(expectedImages), .success(receivedImages)):
             XCTAssertEqual(expectedImages, receivedImages, file: file, line: line)
-            XCTAssertEqual(expectedTimestamp, receivedTimestamp)
         case let (.failure(expectedError as NSError), .failure(receivedError as NSError)):
             XCTAssertEqual(expectedError, receivedError, file: file, line: line)
         default:

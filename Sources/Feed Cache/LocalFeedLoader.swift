@@ -15,7 +15,7 @@ public final class LocalFeedLoader {
     var currentDate: () -> Date
 
     public typealias SaveResult = Error?
-    public typealias LoadResult = RetrieveCachedFeedResult
+    public typealias LoadResult = LoadFeedResult
 
     public func save(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
         store.deleteCacheFeed { [weak self] error in
@@ -36,12 +36,27 @@ public final class LocalFeedLoader {
     }
 
     public func load(completion: @escaping (LoadResult) -> Void) {
-        store.retreive(completion: completion)
+        store.retreive { result in
+            switch result {
+            case .empty:
+                completion(.success([]))
+            case .found(feed: let feed, timestamp: _):
+                completion(.success(feed.toModel()))
+            case let .failure(error):
+                completion(.failure(error))
+            }
+        }
     }
 }
 
 private extension Array where Element == FeedImage {
     func toLocal() -> [LocalFeedImage] {
         map { LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }
+    }
+}
+
+private extension Array where Element == LocalFeedImage {
+    func toModel() -> [FeedImage] {
+        map { FeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }
     }
 }
