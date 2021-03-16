@@ -14,7 +14,10 @@ public final class LocalFeedLoader {
     var store: FeedStore
     var currentDate: () -> Date
 
+    private var caledar = Calendar(identifier: .gregorian)
+
     public typealias SaveResult = Error?
+    public typealias LoadResult = LoadFeedResult
 
     public func save(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
         store.deleteCacheFeed { [weak self] error in
@@ -33,10 +36,46 @@ public final class LocalFeedLoader {
             completion(error)
         }
     }
+
+    public func load(completion: @escaping (LoadResult) -> Void) {
+        store.retreive { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case let .found(feed: feed, timestamp: timestamp) where self.validate(timestamp):
+                completion(.success(feed.toModel()))
+            case .empty:
+                completion(.success([]))
+            case .found:
+                self.store.deleteCacheFeed(completion: { _ in })
+                completion(.success([]))
+            case let .failure(error):
+                self.store.deleteCacheFeed(completion: { _ in })
+                completion(.failure(error))
+            }
+        }
+    }
+
+    private var maxCacheAgeInDays: Int {
+        7
+    }
+
+    private func validate(_ timestamp: Date) -> Bool {
+        if let maxCacheAge = caledar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) {
+            return maxCacheAge > currentDate()
+        } else {
+            return false
+        }
+    }
 }
 
 private extension Array where Element == FeedImage {
     func toLocal() -> [LocalFeedImage] {
         map { LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }
+    }
+}
+
+private extension Array where Element == LocalFeedImage {
+    func toModel() -> [FeedImage] {
+        map { FeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }
     }
 }
