@@ -35,8 +35,18 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
     func test_load_deliverNoImagesOnEmptyCache() {
         let (sut, store) = makeSUT()
 
-        expect(sut, toCompleteWith: .success([])) {
+        expect(sut, toCompleteWith: .empty) {
             store.completeRetreivalWithEmptyCache(at: 0)
+        }
+    }
+
+    func test_load_deliversCachedImagesOnLessThanSevenDaysOldCache() {
+        let (sut, store) = makeSUT()
+        let feed = uniqueImageFeed()
+        let currentDate = Date()
+        let lessThanSevenDaysOldTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
+        expect(sut, toCompleteWith: .found(feed: feed.local, timestamp: lessThanSevenDaysOldTimestamp)) {
+            store.completeRetreival(with: feed.local, timestamp: lessThanSevenDaysOldTimestamp, at: 0)
         }
     }
 
@@ -60,12 +70,12 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
     private func expect(
         _ sut: LocalFeedLoader,
-        toCompleteWith expectedResult: LoadFeedResult,
+        toCompleteWith expectedResult: LocalFeedLoader.LoadResult,
         when action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        var receivedResult: LoadFeedResult?
+        var receivedResult: LocalFeedLoader.LoadResult?
         let exp = XCTestExpectation(description: "wait for retreival completion")
         sut.load { result in
             receivedResult = result
@@ -76,8 +86,14 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
 
         switch (expectedResult, receivedResult) {
-        case let (.success(expectedImages), .success(receivedImages)):
+        case (.empty, .empty):
+            XCTAssertTrue(true)
+        case let (
+            .found(feed: expectedImages, timestamp: expectedTimestamp),
+            .found(feed: receivedImages, timestamp: receivedTimestamp)
+        ):
             XCTAssertEqual(expectedImages, receivedImages, file: file, line: line)
+            XCTAssertEqual(expectedTimestamp, receivedTimestamp)
         case let (.failure(expectedError as NSError), .failure(receivedError as NSError)):
             XCTAssertEqual(expectedError, receivedError, file: file, line: line)
         default:
@@ -87,5 +103,37 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
                 line: line
             )
         }
+    }
+
+    private func anyURL() -> URL {
+        URL(string: "http://a-url.com")!
+    }
+
+    private func uniqueImage() -> FeedImage {
+        FeedImage(id: UUID(), description: nil, location: nil, url: anyURL())
+    }
+
+    private func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
+        let feed = [uniqueImage(), uniqueImage()]
+        let localImageFeed = feed.map {
+            LocalFeedImage(
+                id: $0.id,
+                description: $0.description,
+                location: $0.location,
+                url: $0.url
+            )
+        }
+
+        return (feed, localImageFeed)
+    }
+}
+
+private extension Date {
+    func adding(days: Int) -> Date {
+        Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
+    }
+
+    func adding(seconds: TimeInterval) -> Date {
+        addingTimeInterval(seconds)
     }
 }

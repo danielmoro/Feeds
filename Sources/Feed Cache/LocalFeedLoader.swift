@@ -15,7 +15,7 @@ public final class LocalFeedLoader {
     var currentDate: () -> Date
 
     public typealias SaveResult = Error?
-    public typealias LoadResult = LoadFeedResult
+    public typealias LoadResult = RetrieveCachedFeedResult
 
     public func save(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
         store.deleteCacheFeed { [weak self] error in
