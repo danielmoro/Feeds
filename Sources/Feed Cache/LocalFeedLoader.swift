@@ -59,6 +59,8 @@ public final class LocalFeedLoader {
             switch result {
             case .empty:
                 break
+            case let .found(feed: feed, timestamp: timestamp) where self.validate(timestamp):
+                break
             default:
                 self.store.deleteCacheFeed(completion: { _ in })
             }
