@@ -5,7 +5,7 @@
 
 import Foundation
 
-final class FeedCacheValidationPolicy {
+final class FeedCachePolicy {
     private static var caledar = Calendar(identifier: .gregorian)
     private static var maxCacheAgeInDays: Int {
         7
