@@ -4,8 +4,11 @@ targets:
     sources: Sources
     type: framework
     platform: macOS
+    deploymentTarget:
+      macOS: 10.15
     settings:
       base:
+        MACOSX_DEPLOYMENT_TARGET: 10.15
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
     info:
@@ -27,8 +30,15 @@ targets:
     dependencies:
       - target: Feeds
     settings:
+      MACOSX_DEPLOYMENT_TARGET: 10.15
 #      base:
 #        CODE_SIGN_STYLE: Automatic
 #        CODE_SIGN_IDENTITY: Sign to Run Lcally
     info:
         path: Tests/Info.plist
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
