@@ -15,11 +15,23 @@ public final class LocalFeedLoader {
     var currentDate: () -> Date
 
     private var caledar = Calendar(identifier: .gregorian)
+    private var maxCacheAgeInDays: Int {
+        7
+    }
 
-    public typealias SaveResult = Error?
-    public typealias LoadResult = LoadFeedResult
+    private func validate(_ timestamp: Date) -> Bool {
+        if let maxCacheAge = caledar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) {
+            return maxCacheAge > currentDate()
+        } else {
+            return false
+        }
+    }
+}
 
-    public func save(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
+public extension LocalFeedLoader {
+    typealias SaveResult = Error?
+
+    func save(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
         store.deleteCacheFeed { [weak self] error in
             guard let self = self else { return }
             if let deleteCacheError = error {
@@ -30,12 +42,16 @@ public final class LocalFeedLoader {
         }
     }
 
-    public func cache(feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
+    internal func cache(feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
         store.insert(feed: feed.toLocal(), timestamp: currentDate()) { [weak self] error in
             guard self != nil else { return }
             completion(error)
         }
     }
+}
+
+extension LocalFeedLoader: FeedLoader {
+    public typealias LoadResult = LoadFeedResult
 
     public func load(completion: @escaping (LoadResult) -> Void) {
         store.retreive { [weak self] result in
@@ -50,8 +66,10 @@ public final class LocalFeedLoader {
             }
         }
     }
+}
 
-    public func validateCache() {
+public extension LocalFeedLoader {
+    func validateCache() {
         store.retreive { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -63,18 +81,6 @@ public final class LocalFeedLoader {
                 self.store.deleteCacheFeed(completion: { _ in })
             }
         } // i need to elaborate more, why it is ok to call retrevie every time we want to perform validation
-    }
-
-    private var maxCacheAgeInDays: Int {
-        7
-    }
-
-    private func validate(_ timestamp: Date) -> Bool {
-        if let maxCacheAge = caledar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) {
-            return maxCacheAge > currentDate()
-        } else {
-            return false
-        }
     }
 }
 
