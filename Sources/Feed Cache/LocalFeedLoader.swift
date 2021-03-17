@@ -13,19 +13,6 @@ public final class LocalFeedLoader {
 
     var store: FeedStore
     var currentDate: () -> Date
-
-    private var caledar = Calendar(identifier: .gregorian)
-    private var maxCacheAgeInDays: Int {
-        7
-    }
-
-    private func validate(_ timestamp: Date) -> Bool {
-        if let maxCacheAge = caledar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) {
-            return maxCacheAge > currentDate()
-        } else {
-            return false
-        }
-    }
 }
 
 public extension LocalFeedLoader {
@@ -57,7 +44,8 @@ extension LocalFeedLoader: FeedLoader {
         store.retreive { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case let .found(feed: feed, timestamp: timestamp) where self.validate(timestamp):
+            case let .found(feed: feed, timestamp: timestamp)
+                where FeedCacheValidationPolicy.validate(timestamp, against: self.currentDate()):
                 completion(.success(feed.toModel()))
             case let .failure(error):
                 completion(.failure(error))
@@ -75,12 +63,13 @@ public extension LocalFeedLoader {
             switch result {
             case .empty:
                 break
-            case let .found(feed: _, timestamp: timestamp) where self.validate(timestamp):
+            case let .found(feed: _, timestamp: timestamp)
+                where FeedCacheValidationPolicy.validate(timestamp, against: self.currentDate()):
                 break
             default:
                 self.store.deleteCacheFeed(completion: { _ in })
             }
-        } // i need to elaborate more, why it is ok to call retrevie every time we want to perform validation
+        }
     }
 }
 
