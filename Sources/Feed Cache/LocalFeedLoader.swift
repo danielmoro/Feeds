@@ -15,46 +15,6 @@ public final class LocalFeedLoader {
     var currentDate: () -> Date
 
     private var caledar = Calendar(identifier: .gregorian)
-
-    public typealias SaveResult = Error?
-    public typealias LoadResult = LoadFeedResult
-
-    public func save(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
-        store.deleteCacheFeed { [weak self] error in
-            guard let self = self else { return }
-            if let deleteCacheError = error {
-                completion(deleteCacheError)
-            } else {
-                self.cache(feed: feed, completion: completion)
-            }
-        }
-    }
-
-    public func cache(feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
-        store.insert(feed: feed.toLocal(), timestamp: currentDate()) { [weak self] error in
-            guard self != nil else { return }
-            completion(error)
-        }
-    }
-
-    public func load(completion: @escaping (LoadResult) -> Void) {
-        store.retreive { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case let .found(feed: feed, timestamp: timestamp) where self.validate(timestamp):
-                completion(.success(feed.toModel()))
-            case .empty:
-                completion(.success([]))
-            case .found:
-                self.store.deleteCacheFeed(completion: { _ in })
-                completion(.success([]))
-            case let .failure(error):
-                self.store.deleteCacheFeed(completion: { _ in })
-                completion(.failure(error))
-            }
-        }
-    }
-
     private var maxCacheAgeInDays: Int {
         7
     }
@@ -65,6 +25,62 @@ public final class LocalFeedLoader {
         } else {
             return false
         }
+    }
+}
+
+public extension LocalFeedLoader {
+    typealias SaveResult = Error?
+
+    func save(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
+        store.deleteCacheFeed { [weak self] error in
+            guard let self = self else { return }
+            if let deleteCacheError = error {
+                completion(deleteCacheError)
+            } else {
+                self.cache(feed: feed, completion: completion)
+            }
+        }
+    }
+
+    internal func cache(feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
+        store.insert(feed: feed.toLocal(), timestamp: currentDate()) { [weak self] error in
+            guard self != nil else { return }
+            completion(error)
+        }
+    }
+}
+
+extension LocalFeedLoader: FeedLoader {
+    public typealias LoadResult = LoadFeedResult
+
+    public func load(completion: @escaping (LoadResult) -> Void) {
+        store.retreive { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case let .found(feed: feed, timestamp: timestamp) where self.validate(timestamp):
+                completion(.success(feed.toModel()))
+            case let .failure(error):
+                completion(.failure(error))
+            case .empty, .found:
+                completion(.success([]))
+            }
+        }
+    }
+}
+
+public extension LocalFeedLoader {
+    func validateCache() {
+        store.retreive { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .empty:
+                break
+            case let .found(feed: _, timestamp: timestamp) where self.validate(timestamp):
+                break
+            default:
+                self.store.deleteCacheFeed(completion: { _ in })
+            }
+        } // i need to elaborate more, why it is ok to call retrevie every time we want to perform validation
     }
 }
 
