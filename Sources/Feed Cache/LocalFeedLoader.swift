@@ -53,10 +53,16 @@ public final class LocalFeedLoader {
             }
         }
     }
-    
+
     public func validateCache() {
-        store.retreive(completion: { _ in }) // i need to elaborate more, why it is ok to call retrevie every time we want to perform validation
-        store.deleteCacheFeed(completion: { _ in })
+        store.retreive { [unowned self] result in
+            switch result {
+            case .empty:
+                break
+            default:
+                self.store.deleteCacheFeed(completion: { _ in })
+            }
+        } // i need to elaborate more, why it is ok to call retrevie every time we want to perform validation
     }
 
     private var maxCacheAgeInDays: Int {
