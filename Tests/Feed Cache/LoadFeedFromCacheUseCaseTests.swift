@@ -68,6 +68,15 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         }
     }
 
+    func test_load_hasNoSideEffectsOnRetreivalError() {
+        let (sut, store) = makeSUT()
+
+        sut.load { _ in }
+        store.completeRetreival(with: anyNSError(), at: 0)
+
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
+    }
+
     func test_load_doesNotDeleteCacheOnEmptyCache() {
         let (sut, store) = makeSUT()
 
@@ -75,15 +84,6 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         store.completeRetreivalWithEmptyCache(at: 0)
 
         XCTAssertEqual(store.receivedMessages, [.retrieve])
-    }
-
-    func test_load_deletesCacheOnRetreivalError() {
-        let (sut, store) = makeSUT()
-
-        sut.load { _ in }
-        store.completeRetreival(with: anyNSError(), at: 0)
-
-        XCTAssertEqual(store.receivedMessages, [.retrieve, .delete])
     }
 
     func test_load_doesNotDeleteCacheOnLessThanSevenDaysOldCache() {

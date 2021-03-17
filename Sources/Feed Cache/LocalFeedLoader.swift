@@ -49,10 +49,14 @@ public final class LocalFeedLoader {
                 self.store.deleteCacheFeed(completion: { _ in })
                 completion(.success([]))
             case let .failure(error):
-                self.store.deleteCacheFeed(completion: { _ in })
                 completion(.failure(error))
             }
         }
+    }
+    
+    public func validateCache() {
+        store.retreive(completion: { _ in }) // i need to elaborate more, why it is ok to call retrevie every time we want to perform validation
+        store.deleteCacheFeed(completion: { _ in })
     }
 
     private var maxCacheAgeInDays: Int {
