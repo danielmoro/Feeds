@@ -5,10 +5,10 @@ targets:
     type: framework
     platform: macOS
     deploymentTarget:
-      macOS: 11.0
+      macOS: 10.15
     settings:
       base:
-        MACOSX_DEPLOYMENT_TARGET: 11.0
+        MACOSX_DEPLOYMENT_TARGET: 10.15
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
     info:
