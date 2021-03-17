@@ -30,7 +30,7 @@ targets:
     dependencies:
       - target: Feeds
     settings:
-      MACOSX_DEPLOYMENT_TARGET: 11.0
+      MACOSX_DEPLOYMENT_TARGET: 10.15
 #      base:
 #        CODE_SIGN_STYLE: Automatic
 #        CODE_SIGN_IDENTITY: Sign to Run Lcally
