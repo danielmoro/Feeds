@@ -1,11 +1,11 @@
 //
-//  Created by Daniel Moro on 13.2.21.
+//  Created by Daniel Moro on 13.3.21.
 //  Copyright © 2021 Daniel Moro. All rights reserved.
 //
 
 import Foundation
 
-public struct FeedImage: Equatable {
+public struct LocalFeedImage: Equatable {
     public init(
         id: UUID, // swiftlint:disable:this identifier_name
         description: String?,
