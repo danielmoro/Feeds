@@ -11,8 +11,30 @@ import XCTest
 
 class CodableFeedStore {
     struct Cache: Codable {
-        var feed: [LocalFeedImage]
+        var feed: [CaodableFeedImage]
         var date: Date
+
+        var localFeed: [LocalFeedImage] {
+            feed.map(\.local)
+        }
+    }
+
+    struct CaodableFeedImage: Equatable, Codable {
+        public let id: UUID // swiftlint:disable:this identifier_name
+        public let description: String?
+        public let location: String?
+        public let url: URL
+
+        init(_ image: LocalFeedImage) {
+            id = image.id
+            description = image.description
+            location = image.location
+            url = image.url
+        }
+        
+        var local: LocalFeedImage {
+            LocalFeedImage(id: id, description: description, location: location, url: url)
+        }
     }
 
     private let storeURL: URL
@@ -25,14 +47,14 @@ class CodableFeedStore {
         do {
             let data = try Data(contentsOf: storeURL)
             let cache = try JSONDecoder().decode(Cache.self, from: data)
-            completion(.found(feed: cache.feed, timestamp: cache.date))
+            completion(.found(feed: cache.localFeed, timestamp: cache.date))
         } catch {
             completion(.empty)
         }
     }
 
     func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.Completion) {
-        let cache = Cache(feed: feed, date: timestamp)
+        let cache = Cache(feed: feed.map(CaodableFeedImage.init), date: timestamp)
         do {
             let data = try JSONEncoder().encode(cache)
             try data.write(to: storeURL)
@@ -101,7 +123,7 @@ class CodableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    func test_retrievingAfterInsert_deliversFeedInserted() {
+    func test_retrievingAfterInsertToEmptyCache_deliversInsertedValues() {
         let sut = makeSUT()
         let feed = uniqueImageFeed().local
         let timeStamp = Date()
@@ -116,7 +138,7 @@ class CodableFeedStoreTests: XCTestCase {
                     XCTAssertEqual(receivedFeed, feed)
                     XCTAssertEqual(receivedTimestamp, timeStamp)
                 default:
-                    XCTFail("Expected to receive inserted feed, got \(result) instead")
+                    XCTFail("Expected to receive inserted feed \(feed) with timestamp \(timeStamp), got \(result) instead")
                 }
                 exp.fulfill()
             }
