@@ -5,7 +5,7 @@
 
 import Foundation
 
-public struct LocalFeedImage: Equatable {
+public struct LocalFeedImage: Equatable, Codable {
     public init(
         id: UUID, // swiftlint:disable:this identifier_name
         description: String?,
