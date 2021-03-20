@@ -67,10 +67,10 @@ class CodableFeedStore {
 
 class CodableFeedStoreTests: XCTestCase {
     override class func setUp() {
-        prepareStore()
+        setupEmptyStoreState()
     }
 
-    private static func prepareStore() {
+    private static func setupEmptyStoreState() {
         removeCache()
     }
 
