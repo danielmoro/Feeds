@@ -84,7 +84,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
         let feed = uniqueImageFeed().local
         let timestamp = Date()
 
-        insert(sut, feed: feed, timestamp: timestamp)
+        insert((feed, timestamp), to: sut)
 
         expect(sut, toReceive: .found(feed: feed, timestamp: timestamp))
     }
@@ -94,7 +94,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
         let feed = uniqueImageFeed().local
         let timestamp = Date()
 
-        insert(sut, feed: feed, timestamp: timestamp)
+        insert((feed, timestamp), to: sut)
 
         expect(sut, toReceiveTwice: .found(feed: feed, timestamp: timestamp))
     }
@@ -119,21 +119,16 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
     func test_insert_deliversNoErrorOnEmptyCache() {
         let sut = makeSUT()
-        let firstFeed = uniqueImageFeed().local
-        let firstTimetamp = Date()
-        let insertionError = insert(sut, feed: firstFeed, timestamp: firstTimetamp)
+
+        let insertionError = insert((uniqueImageFeed().local, Date()), to: sut)
         XCTAssertNil(insertionError)
     }
 
     func test_insert_deliversNoErrorOnNonEmptyCache() {
         let sut = makeSUT()
-        let firstFeed = uniqueImageFeed().local
-        let firstTimetamp = Date()
-        insert(sut, feed: firstFeed, timestamp: firstTimetamp)
+        insert((uniqueImageFeed().local, Date()), to: sut)
 
-        let latestFeed = uniqueImageFeed().local
-        let latestTimetamp = Date()
-        let insertionError = insert(sut, feed: latestFeed, timestamp: latestTimetamp)
+        let insertionError = insert((uniqueImageFeed().local, Date()), to: sut)
         XCTAssertNil(insertionError)
     }
 
@@ -141,11 +136,11 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
         let sut = makeSUT()
         let firstFeed = uniqueImageFeed().local
         let firstTimetamp = Date()
-        insert(sut, feed: firstFeed, timestamp: firstTimetamp)
+        insert((firstFeed, firstTimetamp), to: sut)
 
         let latestFeed = uniqueImageFeed().local
         let latestTimetamp = Date()
-        insert(sut, feed: latestFeed, timestamp: latestTimetamp)
+        insert((latestFeed, latestTimetamp), to: sut)
 
         expect(sut, toReceive: .found(feed: latestFeed, timestamp: latestTimetamp))
     }
@@ -153,10 +148,8 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
     func test_insert_hasNoSideEffectsOnInsertionError() {
         let invalidStoreURL = URL(string: "invalid://store-url")!
         let sut = makeSUT(storeURL: invalidStoreURL)
-        let feed = uniqueImageFeed().local
-        let timestamp = Date()
 
-        insert(sut, feed: feed, timestamp: timestamp)
+        insert((uniqueImageFeed().local, Date()), to: sut)
 
         expect(sut, toReceive: .empty)
     }
@@ -165,7 +158,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
         let invalidStoreURL = URL(fileURLWithPath: "file://invalid-url")
         let sut = makeSUT(storeURL: invalidStoreURL)
 
-        let insertionError = insert(sut, feed: uniqueImageFeed().local, timestamp: Date())
+        let insertionError = insert((uniqueImageFeed().local, Date()), to: sut)
 
         XCTAssertNotNil(insertionError)
     }
@@ -173,31 +166,31 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
     func test_delete_deliversNoErrorOnEmptyCache() {
         let sut = makeSUT()
 
-        let deletionError = deleteCache(sut)
+        let deletionError = deleteCache(from: sut)
         XCTAssertNil(deletionError)
     }
 
     func test_delete_hasNoSideEffectsOnEmptyCache() {
         let sut = makeSUT()
 
-        deleteCache(sut)
+        deleteCache(from: sut)
 
         expect(sut, toReceive: .empty)
     }
 
     func test_delete_deliversNoErrorOnNonEmptyCache() {
         let sut = makeSUT()
-        insert(sut, feed: uniqueImageFeed().local, timestamp: Date())
+        insert((uniqueImageFeed().local, Date()), to: sut)
 
-        let deletionError = deleteCache(sut)
+        let deletionError = deleteCache(from: sut)
         XCTAssertNil(deletionError)
     }
 
     func test_delete_emptiesPreviouslyInsertedCache() {
         let sut = makeSUT()
-        insert(sut, feed: uniqueImageFeed().local, timestamp: Date())
+        insert((uniqueImageFeed().local, Date()), to: sut)
 
-        deleteCache(sut)
+        deleteCache(from: sut)
 
         expect(sut, toReceive: .empty)
     }
@@ -206,7 +199,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
         let nonDeletableStoreURL = cachesDirectory()
         let sut = makeSUT(storeURL: nonDeletableStoreURL)
 
-        let deletionError = deleteCache(sut)
+        let deletionError = deleteCache(from: sut)
         XCTAssertNotNil(deletionError)
     }
 
@@ -214,7 +207,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
         let nonDeletableStoreURL = cachesDirectory()
         let sut = makeSUT(storeURL: nonDeletableStoreURL)
 
-        deleteCache(sut)
+        deleteCache(from: sut)
 
         expect(sut, toReceive: .empty)
     }
@@ -305,13 +298,12 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
     @discardableResult
     private func insert(
-        _ sut: FeedStore,
-        feed: [LocalFeedImage],
-        timestamp: Date
+        _ feed: (imageFeed: [LocalFeedImage], timestamp: Date),
+        to sut: FeedStore
     ) -> Error? {
         var receivedError: Error?
         let exp = XCTestExpectation(description: "wait for insertion to complete")
-        sut.insert(feed: feed, timestamp: timestamp) { error in
+        sut.insert(feed: feed.imageFeed, timestamp: feed.timestamp) { error in
             receivedError = error
             exp.fulfill()
         }
@@ -322,7 +314,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
     @discardableResult
     private func deleteCache(
-        _ sut: FeedStore
+        from sut: FeedStore
     ) -> Error? {
         var receivedError: Error?
         let exp = XCTestExpectation(description: "wait for deletion to complete")
