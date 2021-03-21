@@ -91,40 +91,16 @@ class CodableFeedStoreTests: XCTestCase {
     func test_retrieve_deliversEmptyOnEmptyCache() {
         let sut = makeSUT()
 
-        let exp = XCTestExpectation(description: "wait for retreival to complete")
-        sut.retreive { result in
-            switch result {
-            case .empty:
-                break
-            default:
-                XCTFail("Expected to receive empty result, got \(result) instead")
-            }
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
+        expect(sut, toReceive: .empty)
     }
 
     func test_retrieve_hasNoSideEffectsOnEmptyCache() {
         let sut = makeSUT()
 
-        let exp = XCTestExpectation(description: "wait for retreival to complete")
-        sut.retreive { firstResult in
-            sut.retreive { secondResult in
-                switch (firstResult, secondResult) {
-                case (.empty, .empty):
-                    break
-                default:
-                    XCTFail("Expected retrieving twice from empty cache to deliver same empty result, got \(firstResult) and \(secondResult) instead")
-                }
-                exp.fulfill()
-            }
-        }
-
-        wait(for: [exp], timeout: 1.0)
+        expect(sut, toReceiveTwice: .empty)
     }
 
-    func test_retrievingAfterInsertToEmptyCache_deliversInsertedValues() {
+    func test_retrieve_deliversFoundValuesOnExistingCache() {
         let sut = makeSUT()
         let feed = uniqueImageFeed().local
         let timeStamp = Date()
@@ -132,25 +108,17 @@ class CodableFeedStoreTests: XCTestCase {
         let exp = XCTestExpectation(description: "wait for retreival to complete")
         sut.insert(feed: feed, timestamp: timeStamp) { error in
             XCTAssertNil(error)
-
-            sut.retreive { result in
-                switch result {
-                case let .found(feed: receivedFeed, timestamp: receivedTimestamp):
-                    XCTAssertEqual(receivedFeed, feed)
-                    XCTAssertEqual(receivedTimestamp, timeStamp)
-                default:
-                    XCTFail("Expected to receive inserted feed \(feed) with timestamp \(timeStamp), got \(result) instead")
-                }
-                exp.fulfill()
-            }
+            exp.fulfill()
         }
 
         wait(for: [exp], timeout: 1.0)
+
+        expect(sut, toReceive: .found(feed: feed, timestamp: timeStamp))
     }
 
     // MARK: Helpers
 
-    private static func testSpecificStoreURL() -> URL {
+    private func testSpecificStoreURL() -> URL {
         let documentsURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         let storeURL = documentsURL.appendingPathComponent("\(type(of: self)).store")
         return storeURL
@@ -160,5 +128,41 @@ class CodableFeedStoreTests: XCTestCase {
         let sut = CodableFeedStore(storeURL: testSpecificStoreURL())
         trackMemoryLeaks(sut)
         return sut
+    }
+
+    private func expect(
+        _ sut: CodableFeedStore,
+        toReceive expectedResult: RetrieveCachedFeedResult,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let exp = XCTestExpectation(description: "wait for retreival to complete")
+
+        sut.retreive { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.empty, .empty):
+                break
+            case let (.found(feed: receivedFeed, timestamp: receivedTimestamp),
+                      .found(feed: expectedFeed, timestamp: expectedTimestamp)):
+                XCTAssertEqual(receivedFeed, expectedFeed)
+                XCTAssertEqual(receivedTimestamp, expectedTimestamp)
+            default:
+                XCTFail("Expected to receive \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+    }
+
+    private func expect(
+        _ sut: CodableFeedStore,
+        toReceiveTwice expectedResult: RetrieveCachedFeedResult,
+        file _: StaticString = #filePath,
+        line _: UInt = #line
+    ) {
+        expect(sut, toReceive: expectedResult)
+        expect(sut, toReceive: expectedResult)
     }
 }
