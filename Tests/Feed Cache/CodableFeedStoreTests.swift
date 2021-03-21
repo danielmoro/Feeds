@@ -105,15 +105,21 @@ class CodableFeedStoreTests: XCTestCase {
         let feed = uniqueImageFeed().local
         let timeStamp = Date()
 
-        let exp = XCTestExpectation(description: "wait for retreival to complete")
-        sut.insert(feed: feed, timestamp: timeStamp) { error in
-            XCTAssertNil(error)
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
+        let insertionError = insert(sut, feed: feed, timestamp: timeStamp)
+        XCTAssertNil(insertionError)
 
         expect(sut, toReceive: .found(feed: feed, timestamp: timeStamp))
+    }
+
+    func test_retrieve_hasNoSideEffectsOnExistingCache() {
+        let sut = makeSUT()
+        let feed = uniqueImageFeed().local
+        let timeStamp = Date()
+
+        let insertionError = insert(sut, feed: feed, timestamp: timeStamp)
+        XCTAssertNil(insertionError)
+
+        expect(sut, toReceiveTwice: .found(feed: feed, timestamp: timeStamp))
     }
 
     // MARK: Helpers
@@ -164,5 +170,21 @@ class CodableFeedStoreTests: XCTestCase {
     ) {
         expect(sut, toReceive: expectedResult)
         expect(sut, toReceive: expectedResult)
+    }
+
+    private func insert(
+        _ sut: CodableFeedStore,
+        feed: [LocalFeedImage],
+        timestamp: Date
+    ) -> Error? {
+        var receivedError: Error?
+        let exp = XCTestExpectation(description: "wait for insertion to complete")
+        sut.insert(feed: feed, timestamp: timestamp) { error in
+            receivedError = error
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+        return receivedError
     }
 }
