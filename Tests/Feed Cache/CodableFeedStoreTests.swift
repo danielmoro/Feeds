@@ -31,7 +31,7 @@ class CodableFeedStore {
             location = image.location
             url = image.url
         }
-        
+
         var local: LocalFeedImage {
             LocalFeedImage(id: id, description: description, location: location, url: url)
         }
@@ -66,24 +66,25 @@ class CodableFeedStore {
 }
 
 class CodableFeedStoreTests: XCTestCase {
-    override class func setUp() {
+    override func setUp() {
+        super.setUp()
         setupEmptyStoreState()
     }
 
-    private static func setupEmptyStoreState() {
+    private func setupEmptyStoreState() {
         removeCache()
     }
 
-    override class func tearDown() {
+    override func tearDown() {
         super.tearDown()
         undoTestSideEffects()
     }
 
-    private static func undoTestSideEffects() {
+    private func undoTestSideEffects() {
         removeCache()
     }
 
-    private static func removeCache() {
+    private func removeCache() {
         try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
 
@@ -156,7 +157,7 @@ class CodableFeedStoreTests: XCTestCase {
     }
 
     private func makeSUT() -> CodableFeedStore {
-        let sut = CodableFeedStore(storeURL: CodableFeedStoreTests.testSpecificStoreURL())
+        let sut = CodableFeedStore(storeURL: testSpecificStoreURL())
         trackMemoryLeaks(sut)
         return sut
     }
