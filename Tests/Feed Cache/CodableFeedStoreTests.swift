@@ -143,6 +143,30 @@ class CodableFeedStoreTests: XCTestCase {
         expect(sut, toReceiveTwice: .failure(anyNSError()))
     }
 
+    func test_insert_overridesCacheOnExistingCache() {
+        let sut = makeSUT()
+        let firstFeed = uniqueImageFeed().local
+        let firstTimetamp = Date()
+        let insertionError = insert(sut, feed: firstFeed, timestamp: firstTimetamp)
+        XCTAssertNil(insertionError)
+
+        let latestFeed = uniqueImageFeed().local
+        let latestTimetamp = Date()
+        let secondInsertionError = insert(sut, feed: latestFeed, timestamp: latestTimetamp)
+        XCTAssertNil(secondInsertionError)
+
+        expect(sut, toReceive: .found(feed: latestFeed, timestamp: latestTimetamp))
+    }
+
+    func test_insert_failsOnInsertionError() {
+        let invalidStoreURL = URL(fileURLWithPath: "file://invalid-url")
+        let sut = makeSUT(storeURL: invalidStoreURL)
+        let firstFeed = uniqueImageFeed().local
+        let firstTimetamp = Date()
+        let insertionError = insert(sut, feed: firstFeed, timestamp: firstTimetamp)
+        XCTAssertNotNil(insertionError)
+    }
+
     // MARK: Helpers
 
     private func testSpecificStoreURL() -> URL {
