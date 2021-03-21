@@ -70,13 +70,13 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
     func test_retrieve_deliversEmptyOnEmptyCache() {
         let sut = makeSUT()
 
-        expect(sut, toReceive: .empty)
+        expect(sut, toRetreive: .empty)
     }
 
     func test_retrieve_hasNoSideEffectsOnEmptyCache() {
         let sut = makeSUT()
 
-        expect(sut, toReceiveTwice: .empty)
+        expect(sut, toRetreiveTwice: .empty)
     }
 
     func test_retrieve_deliversFoundValuesOnExistingCache() {
@@ -86,7 +86,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
         insert((feed, timestamp), to: sut)
 
-        expect(sut, toReceive: .found(feed: feed, timestamp: timestamp))
+        expect(sut, toRetreive: .found(feed: feed, timestamp: timestamp))
     }
 
     func test_retrieve_hasNoSideEffectsOnExistingCache() {
@@ -96,7 +96,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
         insert((feed, timestamp), to: sut)
 
-        expect(sut, toReceiveTwice: .found(feed: feed, timestamp: timestamp))
+        expect(sut, toRetreiveTwice: .found(feed: feed, timestamp: timestamp))
     }
 
     func test_retrieve_deliversFailureOnRetreivalError() {
@@ -105,7 +105,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
         try? "invalid data".write(to: invalidStoreURL, atomically: true, encoding: .utf8)
 
-        expect(sut, toReceive: .failure(anyNSError()))
+        expect(sut, toRetreive: .failure(anyNSError()))
     }
 
     func test_retrieve_hasNoSideEffectsOnRetreivalError() {
@@ -114,7 +114,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
         try? "invalid data".write(to: invalidStoreURL, atomically: true, encoding: .utf8)
 
-        expect(sut, toReceiveTwice: .failure(anyNSError()))
+        expect(sut, toRetreiveTwice: .failure(anyNSError()))
     }
 
     func test_insert_deliversNoErrorOnEmptyCache() {
@@ -142,7 +142,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
         let latestTimetamp = Date()
         insert((latestFeed, latestTimetamp), to: sut)
 
-        expect(sut, toReceive: .found(feed: latestFeed, timestamp: latestTimetamp))
+        expect(sut, toRetreive: .found(feed: latestFeed, timestamp: latestTimetamp))
     }
 
     func test_insert_hasNoSideEffectsOnInsertionError() {
@@ -151,7 +151,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
         insert((uniqueImageFeed().local, Date()), to: sut)
 
-        expect(sut, toReceive: .empty)
+        expect(sut, toRetreive: .empty)
     }
 
     func test_insert_failsOnInsertionError() {
@@ -175,7 +175,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
         deleteCache(from: sut)
 
-        expect(sut, toReceive: .empty)
+        expect(sut, toRetreive: .empty)
     }
 
     func test_delete_deliversNoErrorOnNonEmptyCache() {
@@ -192,7 +192,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
         deleteCache(from: sut)
 
-        expect(sut, toReceive: .empty)
+        expect(sut, toRetreive: .empty)
     }
 
     func test_delete_failsOnDeletionError() {
@@ -209,7 +209,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
         deleteCache(from: sut)
 
-        expect(sut, toReceive: .empty)
+        expect(sut, toRetreive: .empty)
     }
 
     func test_storeSideEffects_runSerialy() {
@@ -260,7 +260,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
     private func expect(
         _ sut: FeedStore,
-        toReceive expectedResult: RetrieveCachedFeedResult,
+        toRetreive expectedResult: RetrieveCachedFeedResult,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -288,12 +288,12 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 
     private func expect(
         _ sut: FeedStore,
-        toReceiveTwice expectedResult: RetrieveCachedFeedResult,
+        toRetreiveTwice expectedResult: RetrieveCachedFeedResult,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        expect(sut, toReceive: expectedResult, file: file, line: line)
-        expect(sut, toReceive: expectedResult, file: file, line: line)
+        expect(sut, toRetreive: expectedResult, file: file, line: line)
+        expect(sut, toRetreive: expectedResult, file: file, line: line)
     }
 
     @discardableResult
