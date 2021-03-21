@@ -211,6 +211,34 @@ class CodableFeedStoreTests: XCTestCase {
         XCTAssertNotNil(deletionError)
     }
 
+    func test_storeSideEffects_runSerialy() {
+        let sut = makeSUT()
+
+        var executedOperations: [XCTestExpectation] = []
+
+        let op1 = XCTestExpectation(description: "Operation 1")
+        sut.insert(feed: uniqueImageFeed().local, timestamp: Date()) { _ in
+            executedOperations.append(op1)
+            op1.fulfill()
+        }
+
+        let op2 = XCTestExpectation(description: "Operation 2")
+        sut.deleteCacheFeed { _ in
+            executedOperations.append(op2)
+            op2.fulfill()
+        }
+
+        let op3 = XCTestExpectation(description: "Operation 3")
+        sut.insert(feed: uniqueImageFeed().local, timestamp: Date()) { _ in
+            executedOperations.append(op3)
+            op3.fulfill()
+        }
+
+        wait(for: [op1, op2, op3], timeout: 5)
+
+        XCTAssertEqual(executedOperations, [op1, op2, op3])
+    }
+
     // MARK: Helpers
 
     private func cachesDirectory() -> URL {
