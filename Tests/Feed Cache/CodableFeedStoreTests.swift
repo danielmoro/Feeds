@@ -68,6 +68,8 @@ class CodableFeedStore {
     }
 
     func deleteCacheFeed(completion: @escaping FeedStore.Completion) {
+        try? FileManager.default.removeItem(at: storeURL)
+
         completion(nil)
     }
 }
@@ -180,6 +182,19 @@ class CodableFeedStoreTests: XCTestCase {
         expect(sut, toReceive: .empty)
     }
 
+    func test_delete_deletesCacheOnExistingCache() {
+        let sut = makeSUT()
+        let feed = uniqueImageFeed().local
+        let timeStamp = Date()
+        let insertionError = insert(sut, feed: feed, timestamp: timeStamp)
+        XCTAssertNil(insertionError)
+
+        let deletionError = delete(sut)
+        XCTAssertNil(deletionError)
+
+        expect(sut, toReceiveTwice: .empty)
+    }
+
     // MARK: Helpers
 
     private func testSpecificStoreURL() -> URL {
@@ -247,7 +262,7 @@ class CodableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         return receivedError
     }
-    
+
     private func delete(
         _ sut: CodableFeedStore
     ) -> Error? {
