@@ -68,9 +68,17 @@ class CodableFeedStore {
     }
 
     func deleteCacheFeed(completion: @escaping FeedStore.Completion) {
-        try? FileManager.default.removeItem(at: storeURL)
+        guard FileManager.default.fileExists(atPath: storeURL.path) else {
+            completion(nil)
+            return
+        }
 
-        completion(nil)
+        do {
+            try FileManager.default.removeItem(at: storeURL)
+            completion(nil)
+        } catch {
+            completion(error)
+        }
     }
 }
 
@@ -192,14 +200,26 @@ class CodableFeedStoreTests: XCTestCase {
         let deletionError = delete(sut)
         XCTAssertNil(deletionError)
 
-        expect(sut, toReceiveTwice: .empty)
+        expect(sut, toReceive: .empty)
+    }
+
+    func test_delete_faileOnDeletionError() {
+        let nonDeletableStoreURL = cachesDirectory()
+        let sut = makeSUT(storeURL: nonDeletableStoreURL)
+
+        let deletionError = delete(sut)
+        XCTAssertNotNil(deletionError)
     }
 
     // MARK: Helpers
 
+    private func cachesDirectory() -> URL {
+        let cachesURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        return cachesURL
+    }
+
     private func testSpecificStoreURL() -> URL {
-        let documentsURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-        let storeURL = documentsURL.appendingPathComponent("\(type(of: self)).store")
+        let storeURL = cachesDirectory().appendingPathComponent("\(type(of: self)).store")
         return storeURL
     }
 
@@ -240,11 +260,11 @@ class CodableFeedStoreTests: XCTestCase {
     private func expect(
         _ sut: CodableFeedStore,
         toReceiveTwice expectedResult: RetrieveCachedFeedResult,
-        file _: StaticString = #filePath,
-        line _: UInt = #line
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) {
-        expect(sut, toReceive: expectedResult)
-        expect(sut, toReceive: expectedResult)
+        expect(sut, toReceive: expectedResult, file: file, line: line)
+        expect(sut, toReceive: expectedResult, file: file, line: line)
     }
 
     private func insert(
