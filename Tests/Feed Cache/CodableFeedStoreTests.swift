@@ -81,7 +81,27 @@ class CodableFeedStoreTests: XCTestCase {
 
         expect(sut, toReceiveTwice: .failure(anyNSError()))
     }
-
+    
+    func test_insert_deliversNoErrorOnEmptyCache() {
+        let sut = makeSUT()
+        let firstFeed = uniqueImageFeed().local
+        let firstTimetamp = Date()
+        let insertionError = insert(sut, feed: firstFeed, timestamp: firstTimetamp)
+        XCTAssertNil(insertionError)
+    }
+    
+    func test_insert_deliversNoErrorOnNonEmptyCache() {
+        let sut = makeSUT()
+        let firstFeed = uniqueImageFeed().local
+        let firstTimetamp = Date()
+        insert(sut, feed: firstFeed, timestamp: firstTimetamp)
+        
+        let latestFeed = uniqueImageFeed().local
+        let latestTimetamp = Date()
+        let insertionError = insert(sut, feed: latestFeed, timestamp: latestTimetamp)
+        XCTAssertNil(insertionError)
+    }
+    
     func test_insert_overridesCacheOnExistingCache() {
         let sut = makeSUT()
         let firstFeed = uniqueImageFeed().local
@@ -128,6 +148,15 @@ class CodableFeedStoreTests: XCTestCase {
         let deletionError = deleteCache(sut)
         XCTAssertNotNil(deletionError)
     }
+    
+    func test_delete_hasNoSideEffectsOnDeletionError() {
+        let nonDeletableStoreURL = cachesDirectory()
+        let sut = makeSUT(storeURL: nonDeletableStoreURL)
+
+        deleteCache(sut)
+        
+        expect(sut, toReceive: .empty)
+    }
 
     func test_storeSideEffects_runSerialy() {
         let sut = makeSUT()
@@ -152,7 +181,7 @@ class CodableFeedStoreTests: XCTestCase {
             op3.fulfill()
         }
 
-        wait(for: [op1, op2, op3], timeout: 5)
+        waitForExpectations(timeout: 5)
 
         XCTAssertEqual(executedOperations, [op1, op2, op3])
     }
