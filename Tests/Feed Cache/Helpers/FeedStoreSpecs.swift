@@ -20,7 +20,7 @@ protocol FeedStoreSpecs {
     func test_delete_hasNoSideEffectsOnEmptyCache()
     func test_delete_emptiesPreviouslyInsertedCache()
 
-    func test_storeSideEffects_runSerialy()
+    func test_storeSideEffects_runSerially()
 }
 
 protocol FailableRetreiveFeedStoreSpecs: FeedStoreSpecs {
