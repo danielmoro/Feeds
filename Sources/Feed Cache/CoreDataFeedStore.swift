@@ -20,7 +20,9 @@ public class CoreDataFeedStore: FeedStore {
         backgroundContext = persistentContainer.newBackgroundContext()
     }
 
-    public func deleteCacheFeed(completion _: @escaping Completion) {}
+    public func deleteCacheFeed(completion: @escaping Completion) {
+        completion(nil)
+    }
 
     public func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
         backgroundContext.perform {
