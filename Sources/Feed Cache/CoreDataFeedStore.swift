@@ -22,10 +22,29 @@ public class CoreDataFeedStore: FeedStore {
 
     public func deleteCacheFeed(completion _: @escaping Completion) {}
 
-    public func insert(feed _: [LocalFeedImage], timestamp _: Date, completion _: @escaping Completion) {}
+    public func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
+        backgroundContext.perform {
+            let cache = ManagedCache(context: self.backgroundContext)
+            cache.timestamp = timestamp
+            cache.feed = NSOrderedSet(array: feed.map { ManagedFeedImage(feedImage: $0, context: self.backgroundContext) })
+
+            do {
+                try self.backgroundContext.save()
+                completion(nil)
+            } catch {}
+        }
+    }
 
     public func retreive(completion: @escaping RetreivalCompletion) {
-        completion(.empty)
+        backgroundContext.perform {
+            do {
+                if let cache = try ManagedCache.findIn(context: self.backgroundContext) {
+                    completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
+                } else {
+                    completion(.empty)
+                }
+            } catch {}
+        }
     }
 
     private static func makeContainer() throws -> NSPersistentContainer {

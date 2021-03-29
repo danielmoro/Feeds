@@ -22,7 +22,7 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
     func test_retrieve_deliversFoundValuesOnExistingCache() throws {
         let sut = try makeSUT()
 
-//        assertThatRetrieveDeliversFoundValuesOnExistingCache(on: sut)
+        assertThatRetrieveDeliversFoundValuesOnExistingCache(on: sut)
     }
 
     func test_retrieve_hasNoSideEffectsOnExistingCache() throws {}
