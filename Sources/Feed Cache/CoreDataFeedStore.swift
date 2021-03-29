@@ -24,6 +24,12 @@ public class CoreDataFeedStore: FeedStore {
 
     public func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
         backgroundContext.perform {
+            do {
+                if let cache = try ManagedCache.findIn(context: self.backgroundContext) {
+                    self.backgroundContext.delete(cache)
+                }
+            } catch {}
+
             let cache = ManagedCache(context: self.backgroundContext)
             cache.timestamp = timestamp
             cache.feed = NSOrderedSet(array: feed.map { ManagedFeedImage(feedImage: $0, context: self.backgroundContext) })
