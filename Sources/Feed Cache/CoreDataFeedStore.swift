@@ -39,9 +39,7 @@ public class CoreDataFeedStore: FeedStore {
             do {
                 try ManagedCache.deleteIn(context: context)
 
-                let cache = ManagedCache(context: context)
-                cache.timestamp = timestamp
-                cache.feed = NSOrderedSet(array: feed.map { ManagedFeedImage(feedImage: $0, context: context) })
+                ManagedCache.make(feed: feed, timestamp: timestamp, in: context)
 
                 try context.save()
                 completion(nil)

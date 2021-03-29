@@ -23,6 +23,12 @@ class ManagedCache: NSManagedObject {
         }
     }
 
+    static func make(feed: [LocalFeedImage], timestamp: Date, in context: NSManagedObjectContext) {
+        let cache = ManagedCache(context: context)
+        cache.timestamp = timestamp
+        cache.feed = NSOrderedSet(array: feed.map { ManagedFeedImage(feedImage: $0, context: context) })
+    }
+
     static func findIn(context: NSManagedObjectContext) throws -> ManagedCache? {
         let fetchResult: [ManagedCache] = try context.fetch(fetchRequest())
         return fetchResult.first
