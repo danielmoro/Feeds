@@ -13,9 +13,11 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     private var persistentContainer: NSPersistentContainer
+    private var backgroundContext: NSManagedObjectContext
 
     public init(url: URL) throws {
         persistentContainer = try CoreDataFeedStore.loadPersistentContainerWith(url: url)
+        backgroundContext = persistentContainer.newBackgroundContext()
     }
 
     public func deleteCacheFeed(completion _: @escaping Completion) {}
