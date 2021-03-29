@@ -14,4 +14,17 @@ class ManagedCache: NSManagedObject {
 
     @NSManaged var timestamp: Date
     @NSManaged var feed: NSOrderedSet?
+
+    var localFeed: [LocalFeedImage] {
+        if let array = feed?.array as? [ManagedFeedImage] {
+            return array.map(\.local)
+        } else {
+            return []
+        }
+    }
+
+    static func findIn(context: NSManagedObjectContext) throws -> ManagedCache? {
+        let fetchResult: [ManagedCache] = try context.fetch(fetchRequest())
+        return fetchResult.first
+    }
 }
