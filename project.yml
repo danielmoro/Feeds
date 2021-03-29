@@ -1,4 +1,7 @@
 name: Feeds
+attributes:
+  ORGANIZATIONNAME: Daniel Moro
+  #CLASSPREFIX: Ez
 targets:
   Feeds:
     sources: Sources
