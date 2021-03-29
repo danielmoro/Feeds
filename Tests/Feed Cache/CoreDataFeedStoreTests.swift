@@ -77,6 +77,7 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
     
     private func makeSUT() -> FeedStore {
         let sut = CoreDataFeedStore()
+        trackMemoryLeaks(sut)
         
         return sut
     }
