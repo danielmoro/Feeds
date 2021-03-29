@@ -4,9 +4,22 @@
 //  
 
 import Foundation
+import CoreData
 
 public class CoreDataFeedStore: FeedStore {
-    public init() {}
+    enum Error: Swift.Error {
+        case invalidModel
+    }
+
+    private var persistentContainer: NSPersistentContainer
+
+    public init() throws {
+        guard let modelURL = Bundle(for: type(of: self)).url(forResource: "ManagedFeedStoreModel", withExtension: "momd"),
+              let model = NSManagedObjectModel(contentsOf: modelURL) else {
+                throw Error.invalidModel
+            }
+        persistentContainer = NSPersistentContainer(name: "ManagedFeedStoreModel", managedObjectModel: model)
+    }
 
     public func deleteCacheFeed(completion _: @escaping Completion) {}
 
