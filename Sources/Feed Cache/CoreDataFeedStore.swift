@@ -21,40 +21,55 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func deleteCacheFeed(completion: @escaping Completion) {
-        backgroundContext.perform {
+        perform { context in
             do {
-                try ManagedCache.deleteIn(context: self.backgroundContext)
+                try ManagedCache.deleteIn(context: context)
 
-                try self.backgroundContext.save()
+                try context.save()
                 completion(nil)
-            } catch {}
+
+            } catch {
+                completion(error)
+            }
         }
     }
 
     public func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
-        backgroundContext.perform {
+        perform { context in
             do {
-                try ManagedCache.deleteIn(context: self.backgroundContext)
+                try ManagedCache.deleteIn(context: context)
 
-                let cache = ManagedCache(context: self.backgroundContext)
+                let cache = ManagedCache(context: context)
                 cache.timestamp = timestamp
-                cache.feed = NSOrderedSet(array: feed.map { ManagedFeedImage(feedImage: $0, context: self.backgroundContext) })
+                cache.feed = NSOrderedSet(array: feed.map { ManagedFeedImage(feedImage: $0, context: context) })
 
-                try self.backgroundContext.save()
+                try context.save()
                 completion(nil)
-            } catch {}
+
+            } catch {
+                completion(error)
+            }
         }
     }
 
     public func retreive(completion: @escaping RetreivalCompletion) {
-        backgroundContext.perform {
+        perform { context in
             do {
-                if let cache = try ManagedCache.findIn(context: self.backgroundContext) {
+                if let cache = try ManagedCache.findIn(context: context) {
                     completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
                 } else {
                     completion(.empty)
                 }
-            } catch {}
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
+
+    private func perform(action: @escaping (NSManagedObjectContext) -> Void) {
+        let context = backgroundContext
+        backgroundContext.perform {
+            action(context)
         }
     }
 
