@@ -25,7 +25,11 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
         assertThatRetrieveDeliversFoundValuesOnExistingCache(on: sut)
     }
 
-    func test_retrieve_hasNoSideEffectsOnExistingCache() throws {}
+    func test_retrieve_hasNoSideEffectsOnExistingCache() throws {
+        let sut = try makeSUT()
+
+        assertThatRetrieveHasNoSideEffectsOnExistingCache(on: sut)
+    }
 
     func test_insert_deliversNoErrorOnEmptyCache() throws {}
 
