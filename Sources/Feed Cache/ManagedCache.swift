@@ -27,4 +27,10 @@ class ManagedCache: NSManagedObject {
         let fetchResult: [ManagedCache] = try context.fetch(fetchRequest())
         return fetchResult.first
     }
+
+    static func deleteIn(context: NSManagedObjectContext) throws {
+        if let found = try findIn(context: context) {
+            context.delete(found)
+        }
+    }
 }
