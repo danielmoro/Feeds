@@ -17,4 +17,16 @@ class ManagedFeedImage: NSManagedObject {
     @NSManaged var location: String?
     @NSManaged var url: URL
     @NSManaged var cache: ManagedCache?
+
+    var local: LocalFeedImage {
+        LocalFeedImage(id: id, description: imageDescription, location: location, url: url)
+    }
+
+    convenience init(feedImage: LocalFeedImage, context: NSManagedObjectContext) {
+        self.init(context: context)
+        id = feedImage.id
+        imageDescription = feedImage.description
+        location = feedImage.location
+        url = feedImage.url
+    }
 }
