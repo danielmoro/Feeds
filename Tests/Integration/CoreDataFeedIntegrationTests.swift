@@ -30,6 +30,26 @@ class CoreDataFeedStoreTests: XCTestCase {
 
     private func makeSUT() throws -> LocalFeedLoader {
         let url = CoreDataFeedStoreTests.testSpecificStoreURL()
+    override func setUp() {
+        super.setUp()
+        
+        setupEmptyStoreState()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        
+        undoTestSideEffects()
+    }
+    
+    private func setupEmptyStoreState() {
+        cleanupCache()
+    }
+    
+    private func undoTestSideEffects() {
+        cleanupCache()
+    }
+    
     //MARK: - Helpers
     private func makeSUT(
         file: StaticString = #filePath,
@@ -38,12 +58,18 @@ class CoreDataFeedStoreTests: XCTestCase {
         let url = testSpecificStoreURL()
         let store = try CoreDataFeedStore(url: url)
         let sut = LocalFeedLoader(store: store, currentDate: Date.init)
-
+        
         return sut
     }
-
-    private static func testSpecificStoreURL() -> URL {
+    
+    private func testSpecificStoreURL() -> URL {
         let cachesURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-        return cachesURL.appendingPathComponent("\(type(of: self))-Store").appendingPathExtension("sqlite")
+        return cachesURL
+            .appendingPathComponent("\(type(of: self))-Store")
+            .appendingPathExtension("sqlite")
+    }
+    
+    private func cleanupCache() {
+        try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
 }
