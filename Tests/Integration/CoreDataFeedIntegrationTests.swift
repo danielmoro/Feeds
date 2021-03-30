@@ -13,7 +13,7 @@ class CoreDataFeedStoreTests: XCTestCase {
         expect(sut, toLoad: [])
     }
 
-    func test_loadReturnsImagesSavedByAnotherStore() throws {
+    func test_load_returnsImagesSavedByAnotherStore() throws {
         let sutToSave = try makeSUT()
         let sutToLoad = try makeSUT()
         let anyFeed = uniqueImageFeed().models
