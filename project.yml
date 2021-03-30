@@ -1,4 +1,7 @@
 name: Feeds
+attributes:
+  ORGANIZATIONNAME: Daniel Moro
+  #CLASSPREFIX: Ez
 targets:
   Feeds:
     sources: Sources
@@ -24,16 +27,17 @@ targets:
         - FeedsTests
       gatherCoverageData: true
   FeedsTests:
-    sources: Tests
+    sources:
+      - path: Tests/Isolated
+        group: Tests
+      - path: Tests/Helpers
+        group: Tests
     type: bundle.unit-test
     platform: macOS
     dependencies:
       - target: Feeds
     settings:
       MACOSX_DEPLOYMENT_TARGET: 10.15
-#      base:
-#        CODE_SIGN_STYLE: Automatic
-#        CODE_SIGN_IDENTITY: Sign to Run Lcally
     info:
         path: Tests/Info.plist
     prebuildScripts:
@@ -42,3 +46,37 @@ targets:
                 swiftlint autocorrrect
                 swiftlint lint
         name: Build Tools
+  FeedsIntegrationTests:
+    sources:
+      - path: Tests/Integration
+        group: Tests
+      - path: Tests/Helpers
+        group: Tests
+    type: bundle.unit-test
+    platform: macOS
+    dependencies:
+      - target: Feeds
+    settings:
+      MACOSX_DEPLOYMENT_TARGET: 10.15
+    info:
+        path: Tests/Info.plist
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
+schemes:
+  CI:
+    build:
+      targets:
+        Feeds: all
+    test:
+      gatherCoverageData: true
+      coverageTargets:
+        - Feeds
+      targets:
+        - name: FeedsTests
+          randomExecutionOrder: true
+        - name: FeedsIntegrationTests
+          randomExecutionOrder: true

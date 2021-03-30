@@ -13,10 +13,10 @@ class ManagedCache: NSManagedObject {
     }
 
     @NSManaged var timestamp: Date
-    @NSManaged var feed: NSOrderedSet?
+    @NSManaged var feed: NSOrderedSet
 
     var localFeed: [LocalFeedImage] {
-        if let array = feed?.array as? [ManagedFeedImage] {
+        if let array = feed.array as? [ManagedFeedImage] {
             return array.map(\.local)
         } else {
             return []
