@@ -10,12 +10,12 @@ public class URLSessionHTTPClient: HTTPClient {
 
     private struct UnexpectedResponseError: Error {}
 
-    public func get(from url: URL, completion: ((HTTPClientResult) -> Void)? = nil) {
+    public func get(from url: URL, completion: ((HTTPClient.Result) -> Void)? = nil) {
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
                 completion?(.failure(error))
             } else if let data = data, let response = response as? HTTPURLResponse {
-                completion?(.success(response, data))
+                completion?(.success((response, data)))
             } else {
                 completion?(.failure(UnexpectedResponseError()))
             }

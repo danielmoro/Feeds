@@ -126,7 +126,7 @@ class HTTPClientTests: XCTestCase {
         var receivedValue: (response: HTTPURLResponse, data: Data)?
         let result = resultFor(error: error, response: response, data: data, file: file, line: line)
         switch result {
-        case let .success(response, data):
+        case let .success((response, data)):
             receivedValue = (response, data)
         default:
             XCTFail("expected success, got \(result) instead")
@@ -141,10 +141,10 @@ class HTTPClientTests: XCTestCase {
         data: Data? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> HTTPClientResult {
+    ) -> HTTPClient.Result {
         URLProtocolStub.stub(error: error, response: response, data: data)
 
-        var receivedResult: HTTPClientResult!
+        var receivedResult: HTTPClient.Result!
         let expectation = XCTestExpectation(description: "Wait for completion")
         makeSUT(file: file, line: line).get(from: anyURL()) { result in
             receivedResult = result

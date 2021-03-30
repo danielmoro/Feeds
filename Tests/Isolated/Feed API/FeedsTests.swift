@@ -193,13 +193,13 @@ class FeedsTests: XCTestCase {
     }
 
     private class HTTPClientSpy: HTTPClient {
-        var messages: [(url: URL, completion: ((HTTPClientResult) -> Void)?)] = []
+        var messages: [(url: URL, completion: ((HTTPClient.Result) -> Void)?)] = []
 
         var requestedURLs: [URL] {
             messages.map(\.url)
         }
 
-        func get(from url: URL, completion: ((HTTPClientResult) -> Void)?) {
+        func get(from url: URL, completion: ((HTTPClient.Result) -> Void)?) {
             messages.append((url, completion))
         }
 
@@ -214,7 +214,7 @@ class FeedsTests: XCTestCase {
                 httpVersion: nil,
                 headerFields: nil
             )!
-            messages[index].completion?(.success(response, data))
+            messages[index].completion?(.success((response, data)))
         }
     }
 }

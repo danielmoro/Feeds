@@ -157,7 +157,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
         return cachesURL
     }
 
-    private func testSpecificStoreURL() -> URL {
+    private func testSpecificStoreURL() -> URL { // swiftlint:disable:this private_unit_test
         let storeURL = cachesDirectory().appendingPathComponent("\(type(of: self)).store")
         return storeURL
     }

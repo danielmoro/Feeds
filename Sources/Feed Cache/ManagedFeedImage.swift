@@ -12,7 +12,7 @@ class ManagedFeedImage: NSManagedObject {
         NSFetchRequest<ManagedFeedImage>(entityName: "ManagedFeedImage")
     }
 
-    @NSManaged var id: UUID
+    @NSManaged var id: UUID // swiftlint:disable:this identifier_name
     @NSManaged var imageDescription: String?
     @NSManaged var location: String?
     @NSManaged var url: URL
