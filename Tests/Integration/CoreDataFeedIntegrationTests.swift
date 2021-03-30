@@ -53,12 +53,15 @@ class CoreDataFeedStoreTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSUT(
-        file _: StaticString = #filePath,
-        line _: UInt = #line
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) throws -> LocalFeedLoader {
         let url = testSpecificStoreURL()
         let store = try CoreDataFeedStore(url: url)
         let sut = LocalFeedLoader(store: store, currentDate: Date.init)
+
+        trackMemoryLeaks(store, file: file, line: line)
+        trackMemoryLeaks(sut, file: file, line: line)
 
         return sut
     }
