@@ -47,45 +47,40 @@ public class CodableFeedStore: FeedStore {
     public func retreive(completion: @escaping RetreivalCompletion) {
         let storeURL = self.storeURL
         queue.async {
-            completion(FeedStore.RetreivalResult(catching: {
+            completion(Result {
                 guard let data = try? Data(contentsOf: storeURL) else {
                     return .none
                 }
 
                 let cache = try JSONDecoder().decode(Cache.self, from: data)
                 return CachedFeed(feed: cache.localFeed, timestamp: cache.date)
-            }))
+            })
         }
     }
 
     public func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
         let storeURL = self.storeURL
         queue.async(flags: .barrier) {
-            let cache = Cache(feed: feed.map(CaodableFeedImage.init), date: timestamp)
-            do {
+            completion(Result {
+                let cache = Cache(feed: feed.map(CaodableFeedImage.init), date: timestamp)
                 let data = try JSONEncoder().encode(cache)
                 try data.write(to: storeURL)
-                completion(.success(()))
-            } catch {
-                completion(.failure(error))
-            }
+                return
+            })
         }
     }
 
     public func deleteCacheFeed(completion: @escaping Completion) {
         let storeURL = self.storeURL
         queue.async(flags: .barrier) {
-            guard FileManager.default.fileExists(atPath: storeURL.path) else {
-                completion(.success(()))
-                return
-            }
+            completion(Result {
+                guard FileManager.default.fileExists(atPath: storeURL.path) else {
+                    return
+                }
 
-            do {
                 try FileManager.default.removeItem(at: storeURL)
-                completion(.success(()))
-            } catch {
-                completion(.failure(error))
-            }
+                return
+            })
         }
     }
 }
