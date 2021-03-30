@@ -113,12 +113,17 @@ class CoreDataFeedStoreTests: XCTestCase {
     ) {
         let exp = expectation(description: "Wait for save to complete")
         sut.save(feed) { result in
-            XCTAssertNil(
-                result,
-                "Expected not to receive anything, got \(String(describing: result)) instead",
-                file: file,
-                line: line
-            )
+            switch result {
+            case .success:
+                break
+            default:
+                XCTFail(
+                    "Expected success, got \(String(describing: result)) instead",
+                    file: file,
+                    line: line
+                )
+            }
+
             exp.fulfill()
         }
 
