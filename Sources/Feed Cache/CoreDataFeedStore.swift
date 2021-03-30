@@ -71,13 +71,25 @@ public class CoreDataFeedStore: FeedStore {
         }
     }
 
-    private static func makeContainer() throws -> NSPersistentContainer {
+    private static var cachedModel: NSManagedObjectModel?
+
+    private static func makeModel() throws -> NSManagedObjectModel {
+        if let cachedModel = cachedModel {
+            return cachedModel
+        }
+
         guard let modelURL = Bundle(for: self).url(forResource: "ManagedFeedStoreModel", withExtension: "momd"),
               let model = NSManagedObjectModel(contentsOf: modelURL)
         else {
             throw Error.invalidModel
         }
 
+        cachedModel = model
+        return model
+    }
+
+    private static func makeContainer() throws -> NSPersistentContainer {
+        let model = try makeModel()
         return NSPersistentContainer(name: "ManagedFeedStoreModel", managedObjectModel: model)
     }
 
