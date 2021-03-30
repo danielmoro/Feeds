@@ -104,7 +104,7 @@ class FeedsTests: XCTestCase {
         let client = HTTPClientSpy()
         var sut: RemoteFeedLoader? = RemoteFeedLoader(url: url, client: client)
 
-        var capturedResults: [LoadFeedResult] = []
+        var capturedResults: [FeedLoader.Result] = []
         sut?.load(completion: { result in
             capturedResults.append(result)
         })
@@ -159,13 +159,13 @@ class FeedsTests: XCTestCase {
         return try! JSONSerialization.data(withJSONObject: json, options: []) // swiftlint:disable:this force_try
     }
 
-    private func failure(_ error: RemoteFeedLoader.Error) -> LoadFeedResult {
+    private func failure(_ error: RemoteFeedLoader.Error) -> FeedLoader.Result {
         .failure(error)
     }
 
     func expect(
         _ sut: RemoteFeedLoader,
-        toFinishWith expectedResult: LoadFeedResult,
+        toFinishWith expectedResult: FeedLoader.Result,
         when action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line

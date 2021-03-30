@@ -151,12 +151,12 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
     private func expect(
         _ sut: LocalFeedLoader,
-        toCompleteWith expectedResult: LoadFeedResult,
+        toCompleteWith expectedResult: FeedLoader.Result,
         when action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        var receivedResult: LoadFeedResult?
+        var receivedResult: FeedLoader.Result?
         let exp = XCTestExpectation(description: "wait for retreival completion")
         sut.load { result in
             receivedResult = result
