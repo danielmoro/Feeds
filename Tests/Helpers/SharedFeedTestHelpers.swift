@@ -13,3 +13,21 @@ func anyURL() -> URL {
 func anyNSError() -> NSError {
     NSError(domain: "any error", code: 1)
 }
+
+func uniqueImage() -> FeedImage {
+    FeedImage(id: UUID(), description: nil, location: nil, url: anyURL())
+}
+
+func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
+    let feed = [uniqueImage(), uniqueImage()]
+    let localImageFeed = feed.map {
+        LocalFeedImage(
+            id: $0.id,
+            description: $0.description,
+            location: $0.location,
+            url: $0.url
+        )
+    }
+
+    return (feed, localImageFeed)
+}
