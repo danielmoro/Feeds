@@ -37,19 +37,19 @@ internal class FeedStoreSpy: FeedStore {
     }
 
     internal func completeDeletion(with error: Error, at index: Int) {
-        deletionCompletions[index](error)
+        deletionCompletions[index](.failure(error))
     }
 
     internal func completeDeletionSuccesfully(at index: Int) {
-        deletionCompletions[index](nil)
+        deletionCompletions[index](.success(()))
     }
 
     internal func completeInsertion(with _: [FeedImage], at index: Int) {
-        insertionCompletions[index](nil)
+        insertionCompletions[index](.success(()))
     }
 
     internal func completeInsertion(with error: Error, at index: Int) {
-        insertionCompletions[index](error)
+        insertionCompletions[index](.failure(error))
     }
 
     internal func completeRetreival(with error: Error, at index: Int) {

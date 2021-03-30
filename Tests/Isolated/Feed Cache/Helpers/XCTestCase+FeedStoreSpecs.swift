@@ -98,7 +98,12 @@ extension FeedStoreSpecs where Self: XCTestCase {
         let latestTimetamp = Date()
         insert((latestFeed, latestTimetamp), to: sut)
 
-        expect(sut, toRetreive: .success(CachedFeed(feed: latestFeed, timestamp: latestTimetamp)), file: file, line: line)
+        expect(
+            sut,
+            toRetreive: .success(CachedFeed(feed: latestFeed, timestamp: latestTimetamp)),
+            file: file,
+            line: line
+        )
     }
 
     func assertThatInsertHasNoSideEffectsOnInsertionError(
@@ -262,8 +267,13 @@ extension FeedStoreSpecs where Self: XCTestCase {
     ) -> Error? {
         var receivedError: Error?
         let exp = XCTestExpectation(description: "wait for insertion to complete")
-        sut.insert(feed: feed.imageFeed, timestamp: feed.timestamp) { error in
-            receivedError = error
+        sut.insert(feed: feed.imageFeed, timestamp: feed.timestamp) { result in
+            switch result {
+            case let .failure(error):
+                receivedError = error
+            default:
+                break
+            }
             exp.fulfill()
         }
 
@@ -277,8 +287,13 @@ extension FeedStoreSpecs where Self: XCTestCase {
     ) -> Error? {
         var receivedError: Error?
         let exp = XCTestExpectation(description: "wait for deletion to complete")
-        sut.deleteCacheFeed { deletionError in
-            receivedError = deletionError
+        sut.deleteCacheFeed { result in
+            switch result {
+            case let .failure(error):
+                receivedError = error
+            default:
+                break
+            }
             exp.fulfill()
         }
 

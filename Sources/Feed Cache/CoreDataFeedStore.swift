@@ -26,10 +26,10 @@ public class CoreDataFeedStore: FeedStore {
                 try ManagedCache.deleteIn(context: context)
 
                 try context.save()
-                completion(nil)
+                completion(.success(()))
 
             } catch {
-                completion(error)
+                completion(.failure(error))
             }
         }
     }
@@ -42,10 +42,10 @@ public class CoreDataFeedStore: FeedStore {
                 ManagedCache.make(feed: feed, timestamp: timestamp, in: context)
 
                 try context.save()
-                completion(nil)
+                completion(.success(()))
 
             } catch {
-                completion(error)
+                completion(.failure(error))
             }
         }
     }

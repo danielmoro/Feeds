@@ -72,7 +72,7 @@ class CoreDataFeedStoreTests: XCTestCase {
         return sut
     }
 
-    private func testSpecificStoreURL() -> URL {
+    private func testSpecificStoreURL() -> URL { // swiftlint:disable:this private_unit_test
         let cachesURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         return cachesURL
             .appendingPathComponent("\(type(of: self))-Store")

@@ -16,7 +16,8 @@ public struct CachedFeed: Equatable {
 }
 
 public protocol FeedStore {
-    typealias Completion = (Error?) -> Void
+    typealias CompletionResult = Result<Void, Error>
+    typealias Completion = (CompletionResult) -> Void
     typealias RetreivalResult = Result<CachedFeed?, Error>
     typealias RetreivalCompletion = (RetreivalResult) -> Void
 
