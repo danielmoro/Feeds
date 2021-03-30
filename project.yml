@@ -66,3 +66,17 @@ targets:
                 swiftlint autocorrrect
                 swiftlint lint
         name: Build Tools
+schemes:
+  CI:
+    build:
+      targets:
+        Feeds: all
+    test:
+      gatherCoverageData: true
+      coverageTargets:
+        - Feeds
+      targets:
+        - name: FeedsTests
+          randomExecutionOrder: true
+        - name: FeedsIntegrationTests
+          randomExecutionOrder: true
