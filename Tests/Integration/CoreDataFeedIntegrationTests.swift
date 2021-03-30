@@ -30,6 +30,12 @@ class CoreDataFeedStoreTests: XCTestCase {
 
     private func makeSUT() throws -> LocalFeedLoader {
         let url = CoreDataFeedStoreTests.testSpecificStoreURL()
+    //MARK: - Helpers
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws -> LocalFeedLoader {
+        let url = testSpecificStoreURL()
         let store = try CoreDataFeedStore(url: url)
         let sut = LocalFeedLoader(store: store, currentDate: Date.init)
 
