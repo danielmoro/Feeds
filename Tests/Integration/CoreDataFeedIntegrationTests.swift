@@ -30,6 +30,34 @@ class CoreDataFeedStoreTests: XCTestCase {
         expect(sutToLoad, toLoad: anyFeed)
     }
 
+    func test_save_overridesImagesSavedByAnotherStore() throws {
+        let firstSutToSave = try makeSUT()
+        let lastdSutToSave = try makeSUT()
+        let sutToLoad = try makeSUT()
+        let firstFeed = uniqueImageFeed().models
+        let lastFeed = uniqueImageFeed().models
+
+        let save1Exp = expectation(description: "Wait for save to complete")
+        firstSutToSave.save(firstFeed) { result in
+            XCTAssertNil(result, "Expected not to receive anything, got \(String(describing: result)) instead")
+
+            save1Exp.fulfill()
+        }
+
+        wait(for: [save1Exp], timeout: 1.0)
+
+        let save2Exp = expectation(description: "Wait for save to complete")
+        lastdSutToSave.save(lastFeed) { result in
+            XCTAssertNil(result, "Expected not to receive anything, got \(String(describing: result)) instead")
+
+            save2Exp.fulfill()
+        }
+
+        wait(for: [save2Exp], timeout: 1.0)
+
+        expect(sutToLoad, toLoad: lastFeed)
+    }
+
     override func setUp() {
         super.setUp()
 
