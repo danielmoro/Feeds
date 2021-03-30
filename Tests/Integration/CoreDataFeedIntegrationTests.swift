@@ -18,14 +18,7 @@ class CoreDataFeedStoreTests: XCTestCase {
         let sutToLoad = try makeSUT()
         let anyFeed = uniqueImageFeed().models
 
-        let saveExp = expectation(description: "Wait for save to complete")
-        sutToSave.save(anyFeed) { result in
-            XCTAssertNil(result, "Expected not to receive anything, got \(String(describing: result)) instead")
-
-            saveExp.fulfill()
-        }
-
-        wait(for: [saveExp], timeout: 1.0)
+        save(anyFeed, to: sutToSave)
 
         expect(sutToLoad, toLoad: anyFeed)
     }
@@ -37,23 +30,8 @@ class CoreDataFeedStoreTests: XCTestCase {
         let firstFeed = uniqueImageFeed().models
         let lastFeed = uniqueImageFeed().models
 
-        let save1Exp = expectation(description: "Wait for save to complete")
-        firstSutToSave.save(firstFeed) { result in
-            XCTAssertNil(result, "Expected not to receive anything, got \(String(describing: result)) instead")
-
-            save1Exp.fulfill()
-        }
-
-        wait(for: [save1Exp], timeout: 1.0)
-
-        let save2Exp = expectation(description: "Wait for save to complete")
-        lastdSutToSave.save(lastFeed) { result in
-            XCTAssertNil(result, "Expected not to receive anything, got \(String(describing: result)) instead")
-
-            save2Exp.fulfill()
-        }
-
-        wait(for: [save2Exp], timeout: 1.0)
+        save(firstFeed, to: firstSutToSave)
+        save(lastFeed, to: lastdSutToSave)
 
         expect(sutToLoad, toLoad: lastFeed)
     }
@@ -125,5 +103,25 @@ class CoreDataFeedStoreTests: XCTestCase {
 
         wait(for: [loadExp], timeout: 1.0)
         XCTAssertEqual(receivedFeed, expectedFeed, file: file, line: line)
+    }
+
+    private func save(
+        _ feed: [FeedImage],
+        to sut: LocalFeedLoader,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let exp = expectation(description: "Wait for save to complete")
+        sut.save(feed) { result in
+            XCTAssertNil(
+                result,
+                "Expected not to receive anything, got \(String(describing: result)) instead",
+                file: file,
+                line: line
+            )
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
     }
 }
