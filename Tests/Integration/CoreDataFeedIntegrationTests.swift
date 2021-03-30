@@ -10,20 +10,7 @@ class CoreDataFeedStoreTests: XCTestCase {
     func test_load_doesNotRetreiveItemsOnEmptyCache() throws {
         let sut = try makeSUT()
 
-        let exp = expectation(description: "wait for load to complete")
-        var receivedFeed: [FeedImage]?
-        sut.load { result in
-            switch result {
-            case let .success(feed):
-                receivedFeed = feed
-            default:
-                XCTFail("Expected success with empty cache, got \(result) instead")
-            }
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-        XCTAssertEqual(receivedFeed, [])
+        expect(sut, toLoad: [])
     }
 
     func test_loadReturnsImagesSavedByAnotherStore() throws {
@@ -40,20 +27,7 @@ class CoreDataFeedStoreTests: XCTestCase {
 
         wait(for: [saveExp], timeout: 1.0)
 
-        let loadExp = expectation(description: "wait for load to complete")
-        var receivedFeed: [FeedImage]?
-        sutToLoad.load { result in
-            switch result {
-            case let .success(feed):
-                receivedFeed = feed
-            default:
-                XCTFail("Expected success with empty cache, got \(result) instead")
-            }
-            loadExp.fulfill()
-        }
-
-        wait(for: [loadExp], timeout: 1.0)
-        XCTAssertEqual(receivedFeed, anyFeed)
+        expect(sutToLoad, toLoad: anyFeed)
     }
 
     override func setUp() {
@@ -98,5 +72,27 @@ class CoreDataFeedStoreTests: XCTestCase {
 
     private func cleanupCache() {
         try? FileManager.default.removeItem(at: testSpecificStoreURL())
+    }
+
+    private func expect(
+        _ sut: LocalFeedLoader,
+        toLoad expectedFeed: [FeedImage],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let loadExp = expectation(description: "wait for load to complete")
+        var receivedFeed: [FeedImage]?
+        sut.load { result in
+            switch result {
+            case let .success(feed):
+                receivedFeed = feed
+            default:
+                XCTFail("Expected success with empty cache, got \(result) instead", file: file, line: line)
+            }
+            loadExp.fulfill()
+        }
+
+        wait(for: [loadExp], timeout: 1.0)
+        XCTAssertEqual(receivedFeed, expectedFeed, file: file, line: line)
     }
 }
