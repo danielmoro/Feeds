@@ -22,45 +22,32 @@ public class CoreDataFeedStore: FeedStore {
 
     public func deleteCacheFeed(completion: @escaping Completion) {
         perform { context in
-            do {
+            completion(Result {
                 try ManagedCache.deleteIn(context: context)
-
                 try context.save()
-                completion(.success(()))
-
-            } catch {
-                completion(.failure(error))
-            }
+            })
         }
     }
 
     public func insert(feed: [LocalFeedImage], timestamp: Date, completion: @escaping Completion) {
         perform { context in
-            do {
+            completion(Result {
                 try ManagedCache.deleteIn(context: context)
-
                 ManagedCache.make(feed: feed, timestamp: timestamp, in: context)
-
                 try context.save()
-                completion(.success(()))
-
-            } catch {
-                completion(.failure(error))
-            }
+            })
         }
     }
 
     public func retreive(completion: @escaping RetreivalCompletion) {
         perform { context in
-            do {
+            completion(Result {
                 if let cache = try ManagedCache.findIn(context: context) {
-                    completion(.success(CachedFeed(feed: cache.localFeed, timestamp: cache.timestamp)))
+                    return CachedFeed(feed: cache.localFeed, timestamp: cache.timestamp)
                 } else {
-                    completion(.success(.none))
+                    return nil
                 }
-            } catch {
-                completion(.failure(error))
-            }
+            })
         }
     }
 
