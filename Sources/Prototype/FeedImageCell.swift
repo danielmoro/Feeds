@@ -10,4 +10,23 @@ class FeedImageCell: UITableViewCell {
     @IBOutlet var locationLabel: UILabel?
     @IBOutlet var descriptionLabel: UILabel?
     @IBOutlet var imageContentView: UIImageView?
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        imageContentView?.alpha = 0
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        imageContentView?.alpha = 0
+    }
+
+    func fadeIn(image: UIImage?) {
+        imageContentView?.image = image
+        UIView.animateKeyframes(withDuration: 0.3, delay: 0.3, options: []) {
+            self.imageContentView?.alpha = 1
+        }
+    }
 }
