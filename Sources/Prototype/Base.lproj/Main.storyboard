@@ -11,21 +11,31 @@
         <!--My Feed-->
         <scene sceneID="yum-fA-ftR">
             <objects>
-                <tableViewController title="My Feed" id="VON-hR-2iH" sceneMemberID="viewController">
+                <tableViewController title="My Feed" id="VON-hR-2iH" customClass="FeedTableViewController" customModule="Prototype" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="jfy-kV-dhd">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <view key="tableHeaderView" contentMode="scaleToFill" id="YL4-yH-Rue">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="16"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        </view>
+                        <view key="tableFooterView" contentMode="scaleToFill" id="H3B-UO-852">
+                            <rect key="frame" x="0.0" y="675.00000034679067" width="414" height="16"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="FeedImageCell" rowHeight="610" id="SHa-Mc-88r">
-                                <rect key="frame" x="0.0" y="24.5" width="414" height="610"/>
+                                <rect key="frame" x="0.0" y="40.5" width="414" height="610"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="SHa-Mc-88r" id="Sug-WZ-bpa">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="610"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="ee9-Wt-nKR">
-                                            <rect key="frame" x="20" y="0.0" width="374" height="610"/>
+                                            <rect key="frame" x="20" y="0.0" width="374" height="595"/>
                                             <subviews>
                                                 <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="yQ8-MP-NeF">
                                                     <rect key="frame" x="0.0" y="0.0" width="374" height="61"/>
@@ -49,7 +59,7 @@
                                                             <string key="text">Label 1
 Line 2</string>
                                                             <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
-                                                            <nil key="textColor"/>
+                                                            <color key="textColor" systemColor="systemGray2Color"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                     </subviews>
@@ -61,7 +71,7 @@ Line 2</string>
                                                             <rect key="frame" x="0.0" y="0.0" width="374" height="374"/>
                                                         </imageView>
                                                     </subviews>
-                                                    <color key="backgroundColor" systemColor="systemGray2Color"/>
+                                                    <color key="backgroundColor" systemColor="systemGray6Color"/>
                                                     <constraints>
                                                         <constraint firstAttribute="trailing" secondItem="Fv2-OP-7kN" secondAttribute="trailing" id="2De-3b-bqq"/>
                                                         <constraint firstItem="Fv2-OP-7kN" firstAttribute="top" secondItem="eEf-rK-LZZ" secondAttribute="top" id="6q5-H3-qjq"/>
@@ -76,10 +86,10 @@ Line 2</string>
                                                     </userDefinedRuntimeAttributes>
                                                 </view>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mh0-vO-inp">
-                                                    <rect key="frame" x="0.0" y="445" width="374" height="165"/>
+                                                    <rect key="frame" x="0.0" y="445" width="374" height="150"/>
                                                     <string key="text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget eleifend tortor. Nulla euismod hendrerit nunc, nec pellentesque metus molestie vitae. Duis diam arcu, varius quis est sit amet, vestibulum dignissim velit. Vestibulum fermentum leo mollis, maximus libero in, congue sapien. Suspendisse augue tellus, condimentum vestibulum aliquam rhoncus, tincidunt sed massa. Duis imperdiet vehicula eros ut eleifend.</string>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                                    <nil key="textColor"/>
+                                                    <color key="textColor" white="0.25" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
@@ -87,7 +97,7 @@ Line 2</string>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="ee9-Wt-nKR" firstAttribute="top" secondItem="Sug-WZ-bpa" secondAttribute="top" id="Dn0-2e-wMx"/>
-                                        <constraint firstAttribute="bottom" secondItem="ee9-Wt-nKR" secondAttribute="bottom" id="Oym-60-Usg"/>
+                                        <constraint firstAttribute="bottom" secondItem="ee9-Wt-nKR" secondAttribute="bottom" constant="15" id="Oym-60-Usg"/>
                                         <constraint firstItem="ee9-Wt-nKR" firstAttribute="leading" secondItem="Sug-WZ-bpa" secondAttribute="leadingMargin" id="RSd-ih-e4M"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="ee9-Wt-nKR" secondAttribute="trailing" id="uV6-Iy-9P5"/>
                                     </constraints>
@@ -131,6 +141,9 @@ Line 2</string>
         </systemColor>
         <systemColor name="systemGray2Color">
             <color red="0.68235294117647061" green="0.68235294117647061" blue="0.69803921568627447" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemGray6Color">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
