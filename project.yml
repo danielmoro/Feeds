@@ -15,7 +15,7 @@ targets:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
     info:
-        path: Sources/Info.plist
+        path: Sources/Core/Info.plist
     prebuildScripts:
       - script: |
                 swiftformat --swiftversion 5.3 .
@@ -26,6 +26,37 @@ targets:
       testTargets:
         - FeedsTests
       gatherCoverageData: true
+  Prototype:
+    sources: Sources/Prototype
+    type: application
+    platform: iOS
+    deploymentTarget:
+      iOS: 13
+    info:
+      path: Sources/Prototype/Info.plist
+      properties:
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UILaunchStoryboardName: LaunchScreen
+        UIApplicationSupportsIndirectInputEvents: true
+        ITSAppUsesNonExemptEncryption: false
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleIconName: AppIcon
+    settings:
+      base:
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: Apple Development
+        PRODUCT_BUNDLE_IDENTIFIER: com.Moroverse.FeedsPrototype
+        #DEVELOPMENT_TEAM: 3Q2494254L
+        MARKETING_VERSION: 0.1
+        CURRENT_PROJECT_VERSION: 0.1.0
+        IPHONEOS_DEPLOYMENT_TARGET: 13.0
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
   FeedsTests:
     sources:
       - path: Tests/Isolated
