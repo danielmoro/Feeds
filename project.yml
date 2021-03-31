@@ -3,8 +3,8 @@ attributes:
   ORGANIZATIONNAME: Daniel Moro
   #CLASSPREFIX: Ez
 targets:
-  Feeds:
-    sources: Sources
+  FeedsCore:
+    sources: Sources/Core
     type: framework
     platform: macOS
     deploymentTarget:
@@ -35,7 +35,7 @@ targets:
     type: bundle.unit-test
     platform: macOS
     dependencies:
-      - target: Feeds
+      - target: FeedsCore
     settings:
       MACOSX_DEPLOYMENT_TARGET: 10.15
     info:
@@ -55,7 +55,7 @@ targets:
     type: bundle.unit-test
     platform: macOS
     dependencies:
-      - target: Feeds
+      - target: FeedsCore
     settings:
       MACOSX_DEPLOYMENT_TARGET: 10.15
     info:
@@ -70,11 +70,11 @@ schemes:
   CI:
     build:
       targets:
-        Feeds: all
+        FeedsCore: all
     test:
       gatherCoverageData: true
       coverageTargets:
-        - Feeds
+        - FeedsCore
       targets:
         - name: FeedsTests
           randomExecutionOrder: true

@@ -5,7 +5,7 @@
 //  Created by Daniel Moro on 20.3.21..
 //
 
-import Feeds
+import FeedsCore
 import Foundation
 import XCTest
 

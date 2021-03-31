@@ -5,7 +5,7 @@
 //  Created by Daniel Moro on 13.3.21..
 //
 
-import Feeds
+import FeedsCore
 import Foundation
 
 internal class FeedStoreSpy: FeedStore {

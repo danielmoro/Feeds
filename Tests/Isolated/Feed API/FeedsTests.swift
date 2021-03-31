@@ -5,7 +5,7 @@
 //  Created by Daniel Moro on 13.2.21..
 //
 
-import Feeds
+import FeedsCore
 import XCTest
 
 class FeedsTests: XCTestCase {

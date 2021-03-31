@@ -3,7 +3,7 @@
 //  Copyright © 2021 Daniel Moro. All rights reserved.
 //
 
-import Feeds
+import FeedsCore
 import Foundation
 
 extension Date {
