@@ -96,8 +96,8 @@ Line 2</string>
                                         </stackView>
                                     </subviews>
                                     <constraints>
-                                        <constraint firstItem="ee9-Wt-nKR" firstAttribute="top" secondItem="Sug-WZ-bpa" secondAttribute="top" id="Dn0-2e-wMx"/>
-                                        <constraint firstAttribute="bottom" secondItem="ee9-Wt-nKR" secondAttribute="bottom" constant="15" id="Oym-60-Usg"/>
+                                        <constraint firstItem="ee9-Wt-nKR" firstAttribute="top" secondItem="Sug-WZ-bpa" secondAttribute="top" priority="999" id="Dn0-2e-wMx"/>
+                                        <constraint firstAttribute="bottom" secondItem="ee9-Wt-nKR" secondAttribute="bottom" priority="999" constant="15" id="Oym-60-Usg"/>
                                         <constraint firstItem="ee9-Wt-nKR" firstAttribute="leading" secondItem="Sug-WZ-bpa" secondAttribute="leadingMargin" id="RSd-ih-e4M"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="ee9-Wt-nKR" secondAttribute="trailing" id="uV6-Iy-9P5"/>
                                     </constraints>
