@@ -12,15 +12,28 @@ struct FeedImageViewModel {
 }
 
 class FeedViewController: UITableViewController {
+    let feed: [FeedImageViewModel] = FeedImageViewModel.prototypeFeed
+
     override func numberOfSections(in _: UITableView) -> Int {
         1
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        10
+        feed.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        tableView.dequeueReusableCell(withIdentifier: "FeedImageCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FeedImageCell", for: indexPath) as! FeedImageCell // swiftlint:disable:this force_cast
+        cell.configure(with: feed[indexPath.row])
+        return cell
+    }
+}
+
+extension FeedImageCell {
+    func configure(with model: FeedImageViewModel) {
+        descriptionLabel?.text = model.description
+        locationContainer?.isHidden = model.location == nil
+        imageContentView?.image = UIImage(named: model.imageName)
+        locationLabel?.text = model.location
     }
 }
