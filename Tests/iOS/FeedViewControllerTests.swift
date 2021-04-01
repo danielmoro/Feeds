@@ -26,7 +26,7 @@ class FeedViewController: UITableViewController {
 
     @objc
     private func load() {
-        loader?.load(completion: {[weak self] _ in
+        loader?.load(completion: { [weak self] _ in
             self?.refreshControl?.endRefreshing()
         })
     }
@@ -57,24 +57,21 @@ final class FeedViewControllerTests: XCTestCase {
         sut.simulateUserInitiatedFeedReload()
         XCTAssertEqual(loader.completions.count, 3)
     }
-    
+
     func test_viewDidLoad_showsLoadingIndicator() {
         let (sut, _) = makeSUT()
         sut.loadViewIfNeeded()
 
-        let isShown = sut.refreshControl?.isRefreshing
-        XCTAssertEqual(isShown, true)
-
+        XCTAssertEqual(sut.isShowingLoadingIndicator, true)
     }
-    
+
     func test_viewDidLoad_hidesLoadingIdicatorOnLoadCompletion() {
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
-        
-        
+
         loader.complete(at: 0)
 
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
+        XCTAssertEqual(sut.isShowingLoadingIndicator, false)
     }
 
     // MARK: - Helpers
@@ -96,7 +93,7 @@ final class FeedViewControllerTests: XCTestCase {
         func load(completion: @escaping (FeedLoader.Result) -> Void) {
             completions.append(completion)
         }
-        
+
         func complete(at index: Int) {
             completions[index](.success([]))
         }
@@ -116,5 +113,9 @@ private extension UIRefreshControl {
 private extension FeedViewController {
     func simulateUserInitiatedFeedReload() {
         refreshControl?.simulatePullToRefresh()
+    }
+
+    var isShowingLoadingIndicator: Bool {
+        refreshControl?.isRefreshing ?? false
     }
 }
