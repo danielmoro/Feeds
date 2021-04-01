@@ -20,6 +20,7 @@ class FeedViewController: UITableViewController {
 
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
+        refreshControl?.beginRefreshing()
         load()
     }
 
@@ -53,6 +54,14 @@ final class FeedViewControllerTests: XCTestCase {
 
         sut.simulateUserInitiatedFeedReload()
         XCTAssertEqual(loader.loadRequestCount, 3)
+    }
+
+    func test_load_showsLoadingIndicator() {
+        let (sut, _) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        let isShown = sut.refreshControl?.isRefreshing
+        XCTAssertEqual(isShown, true)
     }
 
     // MARK: - Helpers
