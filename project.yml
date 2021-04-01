@@ -150,7 +150,7 @@ targets:
                 swiftlint lint
         name: Build Tools
 schemes:
-  CI:
+  CI_macOS:
     build:
       targets:
         FeedsCore: all
@@ -162,4 +162,21 @@ schemes:
         - name: FeedsTests
           randomExecutionOrder: true
         - name: FeedsIntegrationTests
+          randomExecutionOrder: true
+  CI_iOS:
+    build:
+      targets:
+        FeedsCore: all
+        Feeds_iOS: all
+    test:
+      gatherCoverageData: true
+      coverageTargets:
+        - FeedsCore
+        - Feeds_iOS
+      targets:
+        - name: FeedsTests
+          randomExecutionOrder: true
+        - name: FeedsIntegrationTests
+          randomExecutionOrder: true
+        - name: Feeds_iOSTests
           randomExecutionOrder: true
