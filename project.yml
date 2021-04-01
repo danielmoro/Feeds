@@ -26,6 +26,90 @@ targets:
       testTargets:
         - FeedsTests
       gatherCoverageData: true
+  FeedsTests:
+    sources:
+      - path: Tests/Core/Isolated
+        group: Tests
+      - path: Tests/Helpers
+        group: Tests
+    type: bundle.unit-test
+    platform: macOS
+    dependencies:
+      - target: FeedsCore
+    settings:
+      MACOSX_DEPLOYMENT_TARGET: 10.15
+      IPHONEOS_DEPLOYMENT_TARGET: 13.0
+      SUPPORTED_PLATFORMS: iphonesimulator iphoneos macosx
+    info:
+        path: Tests/Core/Isolated/Info.plist
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
+  FeedsIntegrationTests:
+    sources:
+      - path: Tests/Core/Integration
+        group: Tests
+      - path: Tests/Helpers
+        group: Tests
+    type: bundle.unit-test
+    platform: macOS
+    dependencies:
+      - target: FeedsCore
+    settings:
+      MACOSX_DEPLOYMENT_TARGET: 10.15
+      IPHONEOS_DEPLOYMENT_TARGET: 13.0
+      SUPPORTED_PLATFORMS: iphonesimulator iphoneos macosx
+    info:
+        path: Tests/Core/Integration/Info.plist
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
+  Feeds_iOS:
+    sources: Sources/iOS
+    type: framework
+    platform: iOS
+    settings:
+      IPHONEOS_DEPLOYMENT_TARGET: 13.0
+      CODE_SIGN_STYLE: Automatic
+      CODE_SIGN_IDENTITY: Apple Development
+    info:
+        path: Sources/iOS/Info.plist
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
+    scheme:
+      testTargets:
+        - Feeds_iOSTests
+      gatherCoverageData: true
+  Feeds_iOSTests:
+    sources:
+      - path: Tests/iOS
+        group: Tests
+      - path: Tests/Helpers
+        group: Tests
+    type: bundle.unit-test
+    platform: iOS
+    dependencies:
+      - target: Feeds_iOS
+    settings:
+      IPHONEOS_DEPLOYMENT_TARGET: 13.0
+    info:
+        path: Tests/iOS/Info.plist
+    prebuildScripts:
+      - script: |
+                swiftformat --swiftversion 5.3 .
+                swiftlint autocorrrect
+                swiftlint lint
+        name: Build Tools
   Prototype:
     sources: Sources/Prototype
     type: application
@@ -59,50 +143,6 @@ targets:
         MARKETING_VERSION: 0.1
         CURRENT_PROJECT_VERSION: 0.1.0
         IPHONEOS_DEPLOYMENT_TARGET: 13.0
-    prebuildScripts:
-      - script: |
-                swiftformat --swiftversion 5.3 .
-                swiftlint autocorrrect
-                swiftlint lint
-        name: Build Tools
-  FeedsTests:
-    sources:
-      - path: Tests/Isolated
-        group: Tests
-      - path: Tests/Helpers
-        group: Tests
-    type: bundle.unit-test
-    platform: macOS
-    dependencies:
-      - target: FeedsCore
-    settings:
-      MACOSX_DEPLOYMENT_TARGET: 10.15
-      IPHONEOS_DEPLOYMENT_TARGET: 13.0
-      SUPPORTED_PLATFORMS: iphonesimulator iphoneos macosx
-    info:
-        path: Tests/Info.plist
-    prebuildScripts:
-      - script: |
-                swiftformat --swiftversion 5.3 .
-                swiftlint autocorrrect
-                swiftlint lint
-        name: Build Tools
-  FeedsIntegrationTests:
-    sources:
-      - path: Tests/Integration
-        group: Tests
-      - path: Tests/Helpers
-        group: Tests
-    type: bundle.unit-test
-    platform: macOS
-    dependencies:
-      - target: FeedsCore
-    settings:
-      MACOSX_DEPLOYMENT_TARGET: 10.15
-      IPHONEOS_DEPLOYMENT_TARGET: 13.0
-      SUPPORTED_PLATFORMS: iphonesimulator iphoneos macosx
-    info:
-        path: Tests/Info.plist
     prebuildScripts:
       - script: |
                 swiftformat --swiftversion 5.3 .
