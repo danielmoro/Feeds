@@ -99,6 +99,7 @@ targets:
     type: bundle.unit-test
     platform: iOS
     dependencies:
+      - target: FeedsCore
       - target: Feeds_iOS
     settings:
       IPHONEOS_DEPLOYMENT_TARGET: 13.0
