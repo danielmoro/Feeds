@@ -8,9 +8,9 @@ import UIKit
 import XCTest
 
 class FeedViewController: UIViewController {
-    private var loader: FeedViewControllerTests.LoaderSpy?
+    private var loader: FeedLoader?
 
-    convenience init(loader: FeedViewControllerTests.LoaderSpy) {
+    convenience init(loader: FeedLoader) {
         self.init()
         self.loader = loader
     }
@@ -18,7 +18,7 @@ class FeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        loader?.load()
+        loader?.load(completion: { _ in })
     }
 }
 
@@ -41,10 +41,10 @@ final class FeedViewControllerTests: XCTestCase {
 
     // MARK: - Helpers
 
-    class LoaderSpy {
+    class LoaderSpy: FeedLoader {
         var loadRequestCount: Int = 0
 
-        func load() {
+        func load(completion _: @escaping (FeedLoader.Result) -> Void) {
             loadRequestCount += 1
         }
     }
