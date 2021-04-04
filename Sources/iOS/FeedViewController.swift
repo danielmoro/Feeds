@@ -6,8 +6,15 @@
 import FeedsCore
 import UIKit
 
+public class FeedImageCell: UITableViewCell {
+    public let locationContainer = UIView()
+    public let locationLabel = UILabel()
+    public let descriptionLabel = UILabel()
+}
+
 public class FeedViewController: UITableViewController {
     private var loader: FeedLoader?
+    private var tableModel: [FeedImage] = []
 
     public convenience init(loader: FeedLoader) {
         self.init()
@@ -25,8 +32,24 @@ public class FeedViewController: UITableViewController {
     @objc
     private func load() {
         refreshControl?.beginRefreshing()
-        loader?.load(completion: { [weak self] _ in
+        loader?.load(completion: { [weak self] result in
+            self?.tableModel = (try? result.get()) ?? []
+            self?.tableView.reloadData()
             self?.refreshControl?.endRefreshing()
         })
+    }
+
+    override public func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        tableModel.count
+    }
+
+    override public func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = FeedImageCell()
+        let feedImage = tableModel[indexPath.row]
+        cell.descriptionLabel.text = feedImage.description
+        cell.locationLabel.text = feedImage.location
+        cell.locationContainer.isHidden = feedImage.location == nil
+
+        return cell
     }
 }
