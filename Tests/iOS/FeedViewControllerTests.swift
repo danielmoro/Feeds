@@ -42,7 +42,7 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(
             sut.isShowingLoadingIndicator,
             false,
-            "Expect loading indicator no to be visible after load is complete"
+            "Expect loading indicator no to be visible after load is complete succesfully"
         )
 
         sut.simulateUserInitiatedFeedReload()
@@ -52,11 +52,11 @@ final class FeedViewControllerTests: XCTestCase {
             "Expect loading indicator to be visible user initiated reload"
         )
 
-        loader.complete(at: 1)
+        loader.complete(withError: anyNSError(), at: 1)
         XCTAssertEqual(
             sut.isShowingLoadingIndicator,
             false,
-            "Expect loading indicator note no to be visible after user initiated load is complete"
+            "Expect loading indicator note no to be visible after user initiated load is complete with error"
         )
     }
 
@@ -79,6 +79,20 @@ final class FeedViewControllerTests: XCTestCase {
         assertThat(sut, isRendering: [image0, image1, image2, image3])
     }
 
+    func test_loadFeedCompletion_doesNotAlterRenderedViewsOnError() {
+        let image0 = makeImage(description: "decription", location: "location")
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.complete(with: [image0], at: 0)
+
+        sut.simulateUserInitiatedFeedReload()
+
+        loader.complete(withError: anyNSError(), at: 1)
+
+        assertThat(sut, isRendering: [image0])
+    }
+
     // MARK: - Helpers
 
     class LoaderSpy: FeedLoader {
@@ -90,6 +104,10 @@ final class FeedViewControllerTests: XCTestCase {
 
         func complete(with images: [FeedImage] = [], at index: Int) {
             completions[index](.success(images))
+        }
+
+        func complete(withError error: Error, at index: Int) {
+            completions[index](.failure(error))
         }
     }
 
