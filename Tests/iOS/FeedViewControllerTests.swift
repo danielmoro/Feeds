@@ -128,14 +128,22 @@ final class FeedViewControllerTests: XCTestCase {
 
         loader.complete(with: [image0, image1], at: 0)
 
-        XCTAssertEqual(loader.loadedImageURLs, [], "Expected no image URLs loaded until view is visible")
+        XCTAssertEqual(loader.cancelledImageURLs, [], "Expected no image URLs cacnelled until view is hidden")
 
         sut.simulateFeedImageViewHidden(at: 0)
 
         XCTAssertEqual(
             loader.cancelledImageURLs,
             [image0.url],
-            "Expected cancelled image URL request once first image is no longer visible"
+            "Expected first image URL cancelled once first image is no longer visible"
+        )
+
+        sut.simulateFeedImageViewHidden(at: 1)
+
+        XCTAssertEqual(
+            loader.cancelledImageURLs,
+            [image0.url, image1.url],
+            "Expected second image URL cancelled once second image is no longer visible"
         )
     }
 
@@ -306,11 +314,9 @@ private extension FeedViewController {
     }
 
     func simulateFeedImageViewHidden(at index: Int) {
-        guard let view = feedImageView(at: index) else {
-            return
-        }
+        let view = feedImageView(at: index)
         let indexPath = IndexPath(row: index, section: feedImagesSection)
-        tableView.delegate?.tableView?(tableView, didEndDisplaying: view, forRowAt: indexPath)
+        tableView.delegate?.tableView?(tableView, didEndDisplaying: view!, forRowAt: indexPath)
     }
 }
 

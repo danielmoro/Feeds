@@ -69,5 +69,6 @@ public class FeedViewController: UITableViewController {
 
     override public func tableView(_: UITableView, didEndDisplaying _: UITableViewCell, forRowAt indexPath: IndexPath) {
         tasks[indexPath]?.cancel()
+        tasks[indexPath] = nil
     }
 }
