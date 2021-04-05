@@ -12,15 +12,19 @@ public class FeedImageCell: UITableViewCell {
     public let descriptionLabel = UILabel()
 }
 
+public protocol FeedImageLoadTask {
+    func cancel()
+}
+
 public protocol FeedImageLoader {
-    func loadImageData(from url: URL)
-    func cancelLoad(for url: URL)
+    func loadImageData(from url: URL) -> FeedImageLoadTask
 }
 
 public class FeedViewController: UITableViewController {
     private var feedLoader: FeedLoader?
     private var imageLoader: FeedImageLoader?
     private var tableModel: [FeedImage] = []
+    private var tasks: [IndexPath: FeedImageLoadTask] = [:]
 
     public convenience init(feedLoader: FeedLoader, imageLoader: FeedImageLoader) {
         self.init()
@@ -58,13 +62,12 @@ public class FeedViewController: UITableViewController {
         cell.descriptionLabel.text = feedImage.description
         cell.locationLabel.text = feedImage.location
         cell.locationContainer.isHidden = feedImage.location == nil
-        imageLoader?.loadImageData(from: feedImage.url)
+        tasks[indexPath] = imageLoader?.loadImageData(from: feedImage.url)
 
         return cell
     }
 
     override public func tableView(_: UITableView, didEndDisplaying _: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let feedImage = tableModel[indexPath.row]
-        imageLoader?.cancelLoad(for: feedImage.url)
+        tasks[indexPath]?.cancel()
     }
 }
