@@ -231,6 +231,78 @@ final class FeedViewControllerTests: XCTestCase {
         )
     }
 
+    func test_feedImageViewReloadButton_isVisibleOnImageLoadError() {
+        let image0 = makeImage(url: URL(string: "https://image-url.com")!)
+        let image1 = makeImage(url: URL(string: "https://another-image-url.com")!)
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeFeedLoading(with: [image0, image1], at: 0)
+
+        let view0 = sut.simulateFeedImageViewVisible(at: 0)
+        let view1 = sut.simulateFeedImageViewVisible(at: 1)
+
+        XCTAssertEqual(
+            view0?.isShowingRetryAction,
+            false,
+            "Expect no retry action on the fist view while image is loading"
+        )
+        XCTAssertEqual(
+            view1?.isShowingRetryAction,
+            false,
+            "Expect no retry action on the second view while image is loading"
+        )
+
+        let imageData0 = UIImage.make(withColor: UIColor.red.cgColor).pngData()!
+        loader.completeImageLoading(with: imageData0, at: 0)
+        XCTAssertEqual(
+            view0?.isShowingRetryAction,
+            false,
+            "Expect no retry action on the fist view if image load completes succesfully"
+        )
+        XCTAssertEqual(
+            view1?.isShowingRetryAction,
+            false,
+            "Expect no state change on the second view if first view image load completes succesfully"
+        )
+
+        loader.completeImageLoadingWithError(at: 1)
+        XCTAssertEqual(
+            view0?.isShowingRetryAction,
+            false,
+            "Expect no state change on the first view if second view image load fails with error"
+        )
+        XCTAssertEqual(
+            view1?.isShowingRetryAction,
+            true,
+            "Expect retry action on the second view if image load fails with error"
+        )
+    }
+
+    func test_feedImageViewReloadButton_isVisibleOnInvalidImageData() {
+        let image0 = makeImage(url: URL(string: "https://image-url.com")!)
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeFeedLoading(with: [image0], at: 0)
+
+        let view0 = sut.simulateFeedImageViewVisible(at: 0)
+
+        XCTAssertEqual(
+            view0?.isShowingRetryAction,
+            false,
+            "Expect no retry action on the fist view while image is loading"
+        )
+
+        let invalidImageData = Data()
+        loader.completeImageLoading(with: invalidImageData, at: 0)
+        XCTAssertEqual(
+            view0?.isShowingRetryAction,
+            true,
+            "Expect retry action on the fist view if image load completes with invalid image data"
+        )
+    }
+
     // MARK: - Helpers
 
     class LoaderSpy: FeedLoader, FeedImageLoader {
@@ -436,6 +508,10 @@ private extension FeedImageCell {
 
     var renderedImage: Data? {
         imageContentView.image?.pngData()
+    }
+
+    var isShowingRetryAction: Bool {
+        !reloadButton.isHidden
     }
 }
 

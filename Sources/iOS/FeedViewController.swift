@@ -11,6 +11,7 @@ public class FeedImageCell: UITableViewCell {
     public let locationLabel = UILabel()
     public let descriptionLabel = UILabel()
     public let imageContentView = UIImageView()
+    public let reloadButton = UIButton()
 }
 
 public protocol FeedImageLoadTask {
@@ -65,14 +66,16 @@ public class FeedViewController: UITableViewController {
         cell.locationLabel.text = feedImage.location
         cell.locationContainer.isHidden = feedImage.location == nil
         cell.imageContentView.image = nil
+        cell.reloadButton.isHidden = true
         cell.startShimmering()
         tasks[indexPath] = imageLoader?.loadImageData(from: feedImage.url) { result in
-            switch result {
-            case let .success(data):
-                cell.imageContentView.image = UIImage(data: data)
-            case .failure:
-                break
+
+            if let data = try? result.get(), let image = UIImage(data: data) {
+                cell.imageContentView.image = image
+            } else {
+                cell.reloadButton.isHidden = false
             }
+
             cell.stopShimmering()
         }
         return cell
