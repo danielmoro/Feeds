@@ -183,6 +183,54 @@ final class FeedViewControllerTests: XCTestCase {
         )
     }
 
+    func test_feedImageView_rendersImageLoadedFromURL() {
+        let image0 = makeImage(url: URL(string: "https://image-url.com")!)
+        let image1 = makeImage(url: URL(string: "https://another-image-url.com")!)
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeFeedLoading(with: [image0, image1], at: 0)
+
+        let view0 = sut.simulateFeedImageViewVisible(at: 0)
+        let view1 = sut.simulateFeedImageViewVisible(at: 1)
+        XCTAssertEqual(
+            view0?.renderedImage,
+            nil,
+            "Expect no image for the fist view while loading image"
+        )
+        XCTAssertEqual(
+            view1?.renderedImage,
+            nil,
+            "Expect no image for the the second view while loading image"
+        )
+
+        let imageData0 = UIImage.make(withColor: UIColor.red.cgColor).pngData()!
+        loader.completeImageLoading(with: imageData0, at: 0)
+        XCTAssertEqual(
+            view0?.renderedImage,
+            imageData0,
+            "Expect image for the fist view once loading completes succesfully"
+        )
+        XCTAssertEqual(
+            view1?.renderedImage,
+            nil,
+            "Expect no image for the the second view when fist view image is loaded"
+        )
+
+        let imageData1 = UIImage.make(withColor: UIColor.blue.cgColor).pngData()!
+        loader.completeImageLoading(with: imageData1, at: 1)
+        XCTAssertEqual(
+            view0?.renderedImage,
+            imageData0,
+            "Expect image for the fist view not to change when second finish loading succesfully"
+        )
+        XCTAssertEqual(
+            view1?.renderedImage,
+            imageData1,
+            "Expect image for the the second view once loading completes succesfully"
+        )
+    }
+
     // MARK: - Helpers
 
     class LoaderSpy: FeedLoader, FeedImageLoader {
@@ -229,8 +277,8 @@ final class FeedViewControllerTests: XCTestCase {
             }
         }
 
-        func completeImageLoading(at index: Int) {
-            imageLoadRequests[index].completion(.success(Data()))
+        func completeImageLoading(with data: Data = Data(), at index: Int) {
+            imageLoadRequests[index].completion(.success(data))
         }
 
         func completeImageLoadingWithError(at index: Int) {
@@ -384,5 +432,21 @@ private extension FeedImageCell {
 
     var isShowingLoadingIndicator: Bool {
         isShimmering == true
+    }
+
+    var renderedImage: Data? {
+        imageContentView.image?.pngData()
+    }
+}
+
+private extension UIImage {
+    static func make(withColor color: CGColor) -> UIImage {
+        UIGraphicsBeginImageContext(CGSize(width: 1, height: 1))
+        let context = UIGraphicsGetCurrentContext()
+        context?.setFillColor(color)
+        context?.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image!
     }
 }
