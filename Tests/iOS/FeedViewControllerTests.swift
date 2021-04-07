@@ -303,6 +303,47 @@ final class FeedViewControllerTests: XCTestCase {
         )
     }
 
+    func test_feedImageViewRetryAction_RetriesImageLoad() {
+        let image0 = makeImage(url: URL(string: "https://image-url.com")!)
+        let image1 = makeImage(url: URL(string: "https://another-image-url.com")!)
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeFeedLoading(with: [image0, image1], at: 0)
+
+        let view0 = sut.simulateFeedImageViewVisible(at: 0)
+        let view1 = sut.simulateFeedImageViewVisible(at: 1)
+
+        XCTAssertEqual(
+            loader.loadedImageURLs,
+            [image0.url, image1.url],
+            "Expected two image URL requests once two image views became visible"
+        )
+
+        loader.completeImageLoadingWithError(at: 0)
+        loader.completeImageLoadingWithError(at: 1)
+
+        XCTAssertEqual(
+            loader.loadedImageURLs,
+            [image0.url, image1.url],
+            "Expected only two image URL requests before retry action"
+        )
+
+        view0?.simulateRetryAction()
+        XCTAssertEqual(
+            loader.loadedImageURLs,
+            [image0.url, image1.url, image0.url],
+            "Expected first image URL request again after first view retry action"
+        )
+
+        view1?.simulateRetryAction()
+        XCTAssertEqual(
+            loader.loadedImageURLs,
+            [image0.url, image1.url, image0.url, image1.url],
+            "Expected second image URL request again after second view retry action"
+        )
+    }
+
     // MARK: - Helpers
 
     class LoaderSpy: FeedLoader, FeedImageLoader {
@@ -454,6 +495,16 @@ private extension UIRefreshControl {
     }
 }
 
+private extension UIButton {
+    func simulateTap() {
+        allTargets.forEach { target in
+            actions(forTarget: target, forControlEvent: .touchUpInside)?.forEach {
+                (target as NSObject).perform(Selector($0))
+            }
+        }
+    }
+}
+
 private extension FeedViewController {
     func simulateUserInitiatedFeedReload() {
         refreshControl?.simulatePullToRefresh()
@@ -512,6 +563,10 @@ private extension FeedImageCell {
 
     var isShowingRetryAction: Bool {
         !reloadButton.isHidden
+    }
+
+    func simulateRetryAction() {
+        reloadButton.simulateTap()
     }
 }
 
