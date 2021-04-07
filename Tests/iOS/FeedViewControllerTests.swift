@@ -371,6 +371,23 @@ final class FeedViewControllerTests: XCTestCase {
         )
     }
 
+    func test_feedImageView_cancelsImageURLRequestWhenViewIsNotNearVisible() {
+        let image0 = makeImage(url: URL(string: "https://image-url.com")!)
+        let image1 = makeImage(url: URL(string: "https://another-image-url.com")!)
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeFeedLoading(with: [image0, image1], at: 0)
+
+        XCTAssertEqual(loader.cancelledImageURLs, [], "Expected no image URLs cancelled until view is not near visible")
+
+        sut.simulateFeedImageViewNotNearVisible(at: 0)
+        XCTAssertEqual(loader.cancelledImageURLs, [image0.url], "Expected fist image URL request cancelled once image is not near visible anymore")
+
+        sut.simulateFeedImageViewNotNearVisible(at: 1)
+        XCTAssertEqual(loader.cancelledImageURLs, [image0.url, image1.url], "Expected second image URL request cancelled once image is not near visible anymore")
+    }
+
     // MARK: - Helpers
 
     class LoaderSpy: FeedLoader, FeedImageLoader {
@@ -509,108 +526,5 @@ final class FeedViewControllerTests: XCTestCase {
         images.enumerated().forEach { index, image in
             assertThat(sut, hasViewConfiguredFor: image, at: index)
         }
-    }
-}
-
-private extension UIRefreshControl {
-    func simulatePullToRefresh() {
-        allTargets.forEach { target in
-            actions(forTarget: target, forControlEvent: .valueChanged)?.forEach {
-                (target as NSObject).perform(Selector($0))
-            }
-        }
-    }
-}
-
-private extension UIButton {
-    func simulateTap() {
-        allTargets.forEach { target in
-            actions(forTarget: target, forControlEvent: .touchUpInside)?.forEach {
-                (target as NSObject).perform(Selector($0))
-            }
-        }
-    }
-}
-
-private extension FeedViewController {
-    func simulateUserInitiatedFeedReload() {
-        refreshControl?.simulatePullToRefresh()
-    }
-
-    var isShowingLoadingIndicator: Bool {
-        refreshControl?.isRefreshing ?? false
-    }
-
-    var numberOfRenderedFeedImageViews: Int {
-        tableView.numberOfRows(inSection: feedImagesSection)
-    }
-
-    var feedImagesSection: Int {
-        0
-    }
-
-    func feedImageView(at index: Int) -> UITableViewCell? {
-        let dataSource = tableView.dataSource
-        let indexPath = IndexPath(row: index, section: feedImagesSection)
-        return dataSource?.tableView(tableView, cellForRowAt: indexPath)
-    }
-
-    @discardableResult
-    func simulateFeedImageViewVisible(at index: Int) -> FeedImageCell? {
-        feedImageView(at: index) as? FeedImageCell
-    }
-
-    func simulateFeedImageViewHidden(at index: Int) {
-        let view = feedImageView(at: index)
-        let indexPath = IndexPath(row: index, section: feedImagesSection)
-        tableView.delegate?.tableView?(tableView, didEndDisplaying: view!, forRowAt: indexPath)
-    }
-
-    func simulateFeedImageViewNearVisible(at index: Int) {
-        let dataSource = tableView.prefetchDataSource
-        let indexPath = IndexPath(row: index, section: feedImagesSection)
-        dataSource?.tableView(tableView, prefetchRowsAt: [indexPath])
-    }
-}
-
-private extension FeedImageCell {
-    var descriptionText: String? {
-        descriptionLabel.text
-    }
-
-    var locationText: String? {
-        locationLabel.text
-    }
-
-    var isShowingLocation: Bool {
-        !locationContainer.isHidden
-    }
-
-    var isShowingLoadingIndicator: Bool {
-        isShimmering == true
-    }
-
-    var renderedImage: Data? {
-        imageContentView.image?.pngData()
-    }
-
-    var isShowingRetryAction: Bool {
-        !reloadButton.isHidden
-    }
-
-    func simulateRetryAction() {
-        reloadButton.simulateTap()
-    }
-}
-
-private extension UIImage {
-    static func make(withColor color: CGColor) -> UIImage {
-        UIGraphicsBeginImageContext(CGSize(width: 1, height: 1))
-        let context = UIGraphicsGetCurrentContext()
-        context?.setFillColor(color)
-        context?.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image!
     }
 }
