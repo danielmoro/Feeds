@@ -18,8 +18,8 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
         self.init()
         feedRefreshController = FeedRefreshViewController(feedLoader: feedLoader)
         feedRefreshController?.onRefresh = { [weak self] result in
-            self?.tableModel = result.map { image in
-                FeedImageCellController(feedImage: image, loader: imageLoader)
+            self?.tableModel = result.map { model in
+                FeedImageCellController(model: model, loader: imageLoader)
             }
         }
     }

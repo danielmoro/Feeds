@@ -11,8 +11,8 @@ public class FeedImageCellController {
     private var feedImage: FeedImage
     private var loader: FeedImageLoader
 
-    init(feedImage: FeedImage, loader: FeedImageLoader) {
-        self.feedImage = feedImage
+    init(model: FeedImage, loader: FeedImageLoader) {
+        feedImage = model
         self.loader = loader
     }
 
