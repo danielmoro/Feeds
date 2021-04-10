@@ -11,15 +11,17 @@ public class FeedImageCellController {}
 public class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
     private var feedRefreshController: FeedRefreshViewController?
     private var imageLoader: FeedImageLoader?
-    private var tableModel: [FeedImage] = []
+    private var tableModel: [FeedImage] = [] {
+        didSet {
+            tableView.reloadData()
+        }
+    }
+
     private var tasks: [IndexPath: FeedImageLoadTask] = [:]
 
     public convenience init(feedLoader: FeedLoader, imageLoader: FeedImageLoader) {
         self.init()
-        feedRefreshController = FeedRefreshViewController(feedLoader: feedLoader, onLoad: { [weak self] result in
-            self?.tableModel = result
-            self?.tableView.reloadData()
-        })
+        feedRefreshController = FeedRefreshViewController(feedLoader: feedLoader)
         self.imageLoader = imageLoader
     }
 
@@ -27,6 +29,10 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
         super.viewDidLoad()
 
         refreshControl = feedRefreshController?.view
+        feedRefreshController?.onRefresh = { [weak self] result in
+            self?.tableModel = result
+        }
+
         tableView.prefetchDataSource = self
         feedRefreshController?.refresh()
     }
