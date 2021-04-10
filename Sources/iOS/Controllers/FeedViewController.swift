@@ -6,15 +6,6 @@
 import FeedsCore
 import UIKit
 
-public protocol FeedImageLoadTask {
-    func cancel()
-}
-
-public protocol FeedImageLoader {
-    typealias FeedImageResult = Result<Data, Error>
-    func loadImageData(from url: URL, completion: @escaping (FeedImageResult) -> Void) -> FeedImageLoadTask
-}
-
 public class FeedImageCellController {}
 
 public class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
