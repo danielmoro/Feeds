@@ -74,6 +74,8 @@ targets:
     sources: Sources/iOS
     type: framework
     platform: iOS
+    dependencies:
+      - target: FeedsCore
     settings:
       IPHONEOS_DEPLOYMENT_TARGET: 13.0
       CODE_SIGN_STYLE: Automatic

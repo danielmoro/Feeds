@@ -7,7 +7,7 @@ import Foundation
 
 public struct LocalFeedImage: Equatable {
     public init(
-        id: UUID, // swiftlint:disable:this identifier_name
+        id: UUID,
         description: String?,
         location: String?,
         url: URL
@@ -18,7 +18,7 @@ public struct LocalFeedImage: Equatable {
         self.url = url
     }
 
-    public let id: UUID // swiftlint:disable:this identifier_name
+    public let id: UUID
     public let description: String?
     public let location: String?
     public let url: URL
