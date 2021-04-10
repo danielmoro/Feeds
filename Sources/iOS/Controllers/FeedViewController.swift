@@ -17,10 +17,8 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     public convenience init(feedLoader: FeedLoader, imageLoader: FeedImageLoader) {
         self.init()
         feedRefreshController = FeedRefreshViewController(feedLoader: feedLoader, onLoad: { [weak self] result in
-            if let newResult = try? result.get() {
-                self?.tableModel = newResult
-                self?.tableView.reloadData()
-            }
+            self?.tableModel = result
+            self?.tableView.reloadData()
         })
         self.imageLoader = imageLoader
     }

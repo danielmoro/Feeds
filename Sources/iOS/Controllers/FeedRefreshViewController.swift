@@ -14,18 +14,21 @@ public class FeedRefreshViewController: NSObject {
     }()
 
     private var feedLoader: FeedLoader
-    private var onLoad: ((Result<[FeedImage], Error>) -> Void)?
+    private var onRefresh: (([FeedImage]) -> Void)?
 
-    internal init(feedLoader: FeedLoader, onLoad: ((Result<[FeedImage], Error>) -> Void)? = nil) {
+    internal init(feedLoader: FeedLoader, onLoad: (([FeedImage]) -> Void)? = nil) {
         self.feedLoader = feedLoader
-        self.onLoad = onLoad
+        onRefresh = onLoad
         super.init()
     }
 
     @objc func refresh() {
         view.beginRefreshing()
         feedLoader.load(completion: { [weak self] result in
-            self?.onLoad?(result)
+            if let newResult = try? result.get() {
+                self?.onRefresh?(newResult)
+            }
+
             self?.view.endRefreshing()
         })
     }
