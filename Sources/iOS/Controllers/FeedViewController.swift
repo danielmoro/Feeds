@@ -39,26 +39,34 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     }
 
     override public func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellController = FeedImageCellController(feedImage: tableModel[indexPath.row], loader: imageLoader!)
-        cellControllers[indexPath] = cellController
-        return cellController.view
+        let cellController = makeCellController(atIndexPath: indexPath)
+        return cellController.view()
     }
 
     override public func tableView(_: UITableView, didEndDisplaying _: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cellControllers[indexPath] = nil
+        removeCellController(atIndexPath: indexPath)
     }
 
     public func tableView(_: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            let cellController = FeedImageCellController(feedImage: tableModel[indexPath.row], loader: imageLoader!)
+            let cellController = makeCellController(atIndexPath: indexPath)
             cellController.prefetch()
-            cellControllers[indexPath] = cellController
         }
     }
 
     public func tableView(_: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            cellControllers[indexPath] = nil
+            removeCellController(atIndexPath: indexPath)
         }
+    }
+
+    func removeCellController(atIndexPath indexPath: IndexPath) {
+        cellControllers[indexPath] = nil
+    }
+
+    func makeCellController(atIndexPath indexPath: IndexPath) -> FeedImageCellController {
+        let cellController = FeedImageCellController(feedImage: tableModel[indexPath.row], loader: imageLoader!)
+        cellControllers[indexPath] = cellController
+        return cellController
     }
 }

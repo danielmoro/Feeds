@@ -7,7 +7,20 @@ import FeedsCore
 import UIKit
 
 public class FeedImageCellController {
-    private(set) lazy var view: UITableViewCell = {
+    private var task: FeedImageLoadTask?
+    private var feedImage: FeedImage
+    private var loader: FeedImageLoader
+
+    init(feedImage: FeedImage, loader: FeedImageLoader) {
+        self.feedImage = feedImage
+        self.loader = loader
+    }
+
+    deinit {
+        task?.cancel()
+    }
+
+    func view() -> UITableViewCell {
         let cell = FeedImageCell()
         cell.descriptionLabel.text = feedImage.description
         cell.locationLabel.text = feedImage.location
@@ -34,19 +47,6 @@ public class FeedImageCellController {
         loadImage()
 
         return cell
-    }()
-
-    private var task: FeedImageLoadTask?
-    private var feedImage: FeedImage
-    private var loader: FeedImageLoader
-
-    init(feedImage: FeedImage, loader: FeedImageLoader) {
-        self.feedImage = feedImage
-        self.loader = loader
-    }
-
-    deinit {
-        task?.cancel()
     }
 
     func prefetch() {
