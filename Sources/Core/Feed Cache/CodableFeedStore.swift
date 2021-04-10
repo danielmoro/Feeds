@@ -18,7 +18,7 @@ public class CodableFeedStore: FeedStore {
     }
 
     struct CaodableFeedImage: Equatable, Codable {
-        public let id: UUID // swiftlint:disable:this identifier_name
+        public let id: UUID
         public let description: String?
         public let location: String?
         public let url: URL

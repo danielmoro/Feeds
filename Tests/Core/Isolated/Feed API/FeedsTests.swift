@@ -130,7 +130,7 @@ class FeedsTests: XCTestCase {
     }
 
     private func makeFeedImage(
-        id: UUID, // swiftlint:disable:this identifier_name
+        id: UUID,
         description: String? = nil,
         location: String? = nil,
         url: URL

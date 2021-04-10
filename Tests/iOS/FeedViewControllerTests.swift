@@ -119,10 +119,12 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view1?.isShowingLoadingIndicator, true, "Expect to see loading indicator in the second view once it bacomes visible")
 
         loader.completeImageLoading(at: 0)
-        XCTAssertEqual(view0?.isShowingLoadingIndicator, false, "Expect loading indicator not to be visible in the fist view once loading completes succesfully")
+        XCTAssertEqual(view0?.isShowingLoadingIndicator, false,
+                       "Expect loading indicator not to be visible in the fist view once loading completes succesfully")
 
         loader.completeImageLoadingWithError(at: 1)
-        XCTAssertEqual(view1?.isShowingLoadingIndicator, false, "Expect loading indicator not to be visible in the second view once loading completes with an error")
+        XCTAssertEqual(view1?.isShowingLoadingIndicator, false,
+                       "Expect loading indicator not to be visible in the second view once loading completes with an error")
     }
 
     func test_feedImageView_rendersImageLoadedFromURL() {
@@ -208,7 +210,8 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url, image0.url], "Expected first image URL request again after first view retry action")
 
         view1?.simulateRetryAction()
-        XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url, image0.url, image1.url], "Expected second image URL request again after second view retry action")
+        XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url, image0.url, image1.url],
+                       "Expected second image URL request again after second view retry action")
     }
 
     func test_feedImageView_preloadsImageURLWhenViewIsNearVisible() {
@@ -240,7 +243,8 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.cancelledImageURLs, [image0.url], "Expected fist image URL request cancelled once image is not near visible anymore")
 
         sut.simulateFeedImageViewNotNearVisible(at: 1)
-        XCTAssertEqual(loader.cancelledImageURLs, [image0.url, image1.url], "Expected second image URL request cancelled once image is not near visible anymore")
+        XCTAssertEqual(loader.cancelledImageURLs, [image0.url, image1.url],
+                       "Expected second image URL request cancelled once image is not near visible anymore")
     }
 
     // MARK: - Helpers
