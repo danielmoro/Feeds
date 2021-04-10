@@ -8,9 +8,7 @@ import UIKit
 
 public class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
     private var feedRefreshController: FeedRefreshViewController?
-    private var imageLoader: FeedImageLoader?
-    private var cellControllers: [IndexPath: FeedImageCellController] = [:]
-    private var tableModel: [FeedImage] = [] {
+    private var tableModel: [FeedImageCellController] = [] {
         didSet {
             tableView.reloadData()
         }
@@ -19,16 +17,17 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     public convenience init(feedLoader: FeedLoader, imageLoader: FeedImageLoader) {
         self.init()
         feedRefreshController = FeedRefreshViewController(feedLoader: feedLoader)
-        self.imageLoader = imageLoader
+        feedRefreshController?.onRefresh = { [weak self] result in
+            self?.tableModel = result.map { image in
+                FeedImageCellController(feedImage: image, loader: imageLoader)
+            }
+        }
     }
 
     override public func viewDidLoad() {
         super.viewDidLoad()
 
         refreshControl = feedRefreshController?.view
-        feedRefreshController?.onRefresh = { [weak self] result in
-            self?.tableModel = result
-        }
 
         tableView.prefetchDataSource = self
         feedRefreshController?.refresh()
@@ -39,34 +38,32 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     }
 
     override public func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellController = makeCellController(atIndexPath: indexPath)
+        let cellController = cellController(atIndexPath: indexPath)
         return cellController.view()
     }
 
     override public func tableView(_: UITableView, didEndDisplaying _: UITableViewCell, forRowAt indexPath: IndexPath) {
-        removeCellController(atIndexPath: indexPath)
+        cancelCellControllerLoad(atIndexPath: indexPath)
     }
 
     public func tableView(_: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            let cellController = makeCellController(atIndexPath: indexPath)
+            let cellController = cellController(atIndexPath: indexPath)
             cellController.prefetch()
         }
     }
 
     public func tableView(_: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            removeCellController(atIndexPath: indexPath)
+            cancelCellControllerLoad(atIndexPath: indexPath)
         }
     }
 
-    func removeCellController(atIndexPath indexPath: IndexPath) {
-        cellControllers[indexPath] = nil
+    func cellController(atIndexPath indexPath: IndexPath) -> FeedImageCellController {
+        tableModel[indexPath.row]
     }
 
-    func makeCellController(atIndexPath indexPath: IndexPath) -> FeedImageCellController {
-        let cellController = FeedImageCellController(feedImage: tableModel[indexPath.row], loader: imageLoader!)
-        cellControllers[indexPath] = cellController
-        return cellController
+    func cancelCellControllerLoad(atIndexPath indexPath: IndexPath) {
+        tableModel[indexPath.row].cancelLoad()
     }
 }

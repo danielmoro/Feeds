@@ -16,10 +16,6 @@ public class FeedImageCellController {
         self.loader = loader
     }
 
-    deinit {
-        task?.cancel()
-    }
-
     func view() -> UITableViewCell {
         let cell = FeedImageCell()
         cell.descriptionLabel.text = feedImage.description
@@ -51,5 +47,9 @@ public class FeedImageCellController {
 
     func prefetch() {
         task = loader.loadImageData(from: feedImage.url, completion: { _ in })
+    }
+
+    func cancelLoad() {
+        task?.cancel()
     }
 }
