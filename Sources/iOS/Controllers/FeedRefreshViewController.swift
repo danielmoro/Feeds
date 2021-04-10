@@ -7,7 +7,12 @@ import FeedsCore
 import UIKit
 
 public class FeedRefreshViewController: NSObject {
-    var refreshControl = UIRefreshControl()
+    private(set) lazy var view: UIRefreshControl = {
+        let view = UIRefreshControl()
+        view.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        return view
+    }()
+
     private var feedLoader: FeedLoader
     private var onLoad: ((Result<[FeedImage], Error>) -> Void)?
 
@@ -15,14 +20,13 @@ public class FeedRefreshViewController: NSObject {
         self.feedLoader = feedLoader
         self.onLoad = onLoad
         super.init()
-        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
     }
 
     @objc func refresh() {
-        refreshControl.beginRefreshing()
+        view.beginRefreshing()
         feedLoader.load(completion: { [weak self] result in
             self?.onLoad?(result)
-            self?.refreshControl.endRefreshing()
+            self?.view.endRefreshing()
         })
     }
 }
