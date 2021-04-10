@@ -43,8 +43,8 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     }
 
     override public func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellController = cellController(atIndexPath: indexPath)
-        return cellController.view()
+        let controller = cellController(atIndexPath: indexPath)
+        return controller.view()
     }
 
     // MARK: - UITableViewDelegate
@@ -57,8 +57,8 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
 
     public func tableView(_: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            let cellController = cellController(atIndexPath: indexPath)
-            cellController.prefetch()
+            let controller = cellController(atIndexPath: indexPath)
+            controller.prefetch()
         }
     }
 
