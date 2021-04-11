@@ -8,38 +8,35 @@ import UIKit
 
 final class FeedImageViewModel {
     private var task: FeedImageLoadTask?
-    private var feedImage: FeedImage
+    private var model: FeedImage
     private var loader: FeedImageLoader
 
-    var image: UIImage?
     var description: String? {
-        feedImage.description
+        model.description
     }
 
     var location: String? {
-        feedImage.location
+        model.location
     }
 
     var hasLocation: Bool {
-        feedImage.location != nil
+        model.location != nil
     }
 
-    var onLoad: ((Bool) -> Void)?
+    var onImageLoadingStateChange: ((Bool) -> Void)?
+    var onShouldRetryImageLoad: ((Bool) -> Void)?
+    var onImageLoad: ((UIImage) -> Void)?
 
     init(model: FeedImage, loader: FeedImageLoader) {
-        feedImage = model
+        self.model = model
         self.loader = loader
     }
 
-    func load() {
-        onLoad?(true)
-        task = loader.loadImageData(from: feedImage.url) { [weak self] result in
-
-            if let data = try? result.get(), let image = UIImage(data: data) {
-                self?.image = image
-            } else {}
-
-            self?.onLoad?(false)
+    func loadImageData() {
+        onImageLoadingStateChange?(true)
+        onShouldRetryImageLoad?(false)
+        task = loader.loadImageData(from: model.url) { [weak self] result in
+            self?.handle(result: result)
         }
     }
 
@@ -48,7 +45,13 @@ final class FeedImageViewModel {
         task = nil
     }
 
-    func preload() {
-        task = loader.loadImageData(from: feedImage.url, completion: { _ in })
+    private func handle(result: Result<Data, Error>) {
+        if let data = try? result.get(), let image = UIImage(data: data) {
+            onImageLoad?(image)
+        } else {
+            onShouldRetryImageLoad?(true)
+        }
+
+        onImageLoadingStateChange?(false)
     }
 }
