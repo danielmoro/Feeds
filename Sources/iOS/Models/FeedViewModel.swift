@@ -6,10 +6,11 @@
 import FeedsCore
 
 final class FeedViewModel {
+    typealias Observer<T> = (T) -> Void
     private let feedLoader: FeedLoader
 
-    var onRefresh: (([FeedImage]) -> Void)?
-    var onLoadingChange: ((Bool) -> Void)?
+    var onRefresh: Observer<[FeedImage]>?
+    var onLoadingChange: Observer<Bool>?
 
     init(feedLoader: FeedLoader) {
         self.feedLoader = feedLoader

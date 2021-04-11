@@ -4,12 +4,15 @@
 //
 
 import FeedsCore
-import UIKit
+import Foundation
 
-final class FeedImageViewModel {
+final class FeedImageViewModel<Image> {
+    typealias Observer<T> = (T) -> Void
+
     private var task: FeedImageLoadTask?
     private var model: FeedImage
     private var loader: FeedImageLoader
+    private var imageTransformer: (Data) -> Image?
 
     var description: String? {
         model.description
@@ -23,13 +26,14 @@ final class FeedImageViewModel {
         model.location != nil
     }
 
-    var onImageLoadingStateChange: ((Bool) -> Void)?
-    var onShouldRetryImageLoad: ((Bool) -> Void)?
-    var onImageLoad: ((UIImage) -> Void)?
+    var onImageLoadingStateChange: Observer<Bool>?
+    var onShouldRetryImageLoad: Observer<Bool>?
+    var onImageLoad: Observer<Image>?
 
-    init(model: FeedImage, loader: FeedImageLoader) {
+    init(model: FeedImage, loader: FeedImageLoader, imageTransformer: @escaping ((Data) -> Image?)) {
         self.model = model
         self.loader = loader
+        self.imageTransformer = imageTransformer
     }
 
     func loadImageData() {
@@ -46,7 +50,7 @@ final class FeedImageViewModel {
     }
 
     private func handle(result: Result<Data, Error>) {
-        if let data = try? result.get(), let image = UIImage(data: data) {
+        if let data = try? result.get(), let image = imageTransformer(data) {
             onImageLoad?(image)
         } else {
             onShouldRetryImageLoad?(true)

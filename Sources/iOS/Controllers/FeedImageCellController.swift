@@ -6,9 +6,9 @@
 import UIKit
 
 public class FeedImageCellController {
-    private var viewModel: FeedImageViewModel
+    private var viewModel: FeedImageViewModel<UIImage>
 
-    init(viewModel: FeedImageViewModel) {
+    init(viewModel: FeedImageViewModel<UIImage>) {
         self.viewModel = viewModel
     }
 
