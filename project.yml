@@ -8,12 +8,11 @@ targets:
     type: framework
     platform: macOS
     settings:
-      base:
-        MACOSX_DEPLOYMENT_TARGET: 10.15
-        IPHONEOS_DEPLOYMENT_TARGET: 13.0
-        SUPPORTED_PLATFORMS: iphonesimulator iphoneos macosx
-        CODE_SIGN_STYLE: Automatic
-        CODE_SIGN_IDENTITY: Apple Development
+      MACOSX_DEPLOYMENT_TARGET: 10.15
+      IPHONEOS_DEPLOYMENT_TARGET: 13.0
+      SUPPORTED_PLATFORMS: iphonesimulator iphoneos macosx
+      CODE_SIGN_STYLE: Don't Code Sign
+      #CODE_SIGN_IDENTITY: Apple Development
     info:
         path: Sources/Core/Info.plist
     prebuildScripts:
@@ -78,8 +77,8 @@ targets:
       - target: FeedsCore
     settings:
       IPHONEOS_DEPLOYMENT_TARGET: 13.0
-      CODE_SIGN_STYLE: Automatic
-      CODE_SIGN_IDENTITY: Apple Development
+      CODE_SIGN_STYLE: Don't Code Sign
+      #CODE_SIGN_IDENTITY: Apple Development
     info:
         path: Sources/iOS/Info.plist
     prebuildScripts:

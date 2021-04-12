@@ -9,9 +9,10 @@ import UIKit
 public final class FeedUIComposer {
     private init() {}
     public static func feedComposedWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
-        let refreshController = FeedRefreshViewController(feedLoader: feedLoader)
+        let feedViewModel = FeedViewModel(feedLoader: feedLoader)
+        let refreshController = FeedRefreshViewController(feedViewModel)
         let feedController = FeedViewController(refreshController: refreshController)
-        refreshController.onRefresh = adaptFeedToCellControllers(forwardingTo: feedController, loader: imageLoader)
+        feedViewModel.onRefresh = adaptFeedToCellControllers(forwardingTo: feedController, loader: imageLoader)
 
         return feedController
     }
@@ -19,7 +20,8 @@ public final class FeedUIComposer {
     private static func adaptFeedToCellControllers(forwardingTo controller: FeedViewController, loader: FeedImageLoader) -> (([FeedImage]) -> Void) {
         return { [weak controller] result in
             controller?.tableModel = result.map { model in
-                FeedImageCellController(model: model, loader: loader)
+                let viewModel = FeedImageViewModel(model: model, loader: loader, imageTransformer: UIImage.init)
+                return FeedImageCellController(viewModel: viewModel)
             }
         }
     }
