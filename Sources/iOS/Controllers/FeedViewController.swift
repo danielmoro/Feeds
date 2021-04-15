@@ -7,16 +7,11 @@ import FeedsCore
 import UIKit
 
 public class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
-    private var feedRefreshController: FeedRefreshViewController?
+    var feedRefreshController: FeedRefreshViewController?
     var tableModel: [FeedImageCellController] = [] {
         didSet {
             tableView.reloadData()
         }
-    }
-
-    convenience init(refreshController: FeedRefreshViewController) {
-        self.init()
-        feedRefreshController = refreshController
     }
 
     override public func viewDidLoad() {
@@ -24,7 +19,6 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
 
         refreshControl = feedRefreshController?.view
 
-        tableView.prefetchDataSource = self
         feedRefreshController?.refresh()
     }
 
