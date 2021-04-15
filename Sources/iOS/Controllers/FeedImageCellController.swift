@@ -22,7 +22,7 @@ public class FeedImageCellController: FeedImageView {
         cell?.descriptionLabel.text = model.description
         cell?.locationLabel.text = model.location
         cell?.locationContainer.isHidden = !model.hasLocation
-        cell?.imageContentView.image = model.image
+        cell?.imageContentView.setImageAnimated(model.image)
         cell?.reloadButton.isHidden = !model.shouldRetry
         cell?.isShimmering = model.isLoading
         cell?.onRetry = delegate.didRequestImage
