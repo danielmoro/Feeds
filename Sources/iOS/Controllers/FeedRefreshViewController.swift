@@ -6,30 +6,34 @@
 import FeedsCore
 import UIKit
 
-public class FeedRefreshViewController: NSObject {
-    private(set) lazy var view = binded(UIRefreshControl())
+protocol FeedRefreshDelegate {
+    func didRequestFeedRefresh()
+}
 
-    var viewModel: FeedViewModel
+public class FeedRefreshViewController: NSObject, FeedLoadingView {
+    private(set) lazy var view = loadView()
+
+    private let delegate: FeedRefreshDelegate
 
     @objc func refresh() {
-        viewModel.loadFeed()
+        delegate.didRequestFeedRefresh()
     }
 
-    internal init(_ viewModel: FeedViewModel) {
-        self.viewModel = viewModel
+    internal init(_ delegate: FeedRefreshDelegate) {
+        self.delegate = delegate
     }
 
-    private func binded(_ view: UIRefreshControl) -> UIRefreshControl {
-        viewModel.onLoadingChange = { isLoading in
-            if isLoading {
-                view.beginRefreshing()
-            } else {
-                view.endRefreshing()
-            }
+    func display(isLoading: Bool) {
+        if isLoading {
+            view.beginRefreshing()
+        } else {
+            view.endRefreshing()
         }
+    }
 
+    private func loadView() -> UIRefreshControl {
+        let view = UIRefreshControl()
         view.addTarget(self, action: #selector(refresh), for: .valueChanged)
-
         return view
     }
 }

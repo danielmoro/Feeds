@@ -5,47 +5,39 @@
 
 import UIKit
 
-public class FeedImageCellController {
-    private var viewModel: FeedImageViewModel<UIImage>
+protocol FeedImageCellControllerDelegate {
+    func didRequestImage()
+    func didCancelImageRequest()
+}
 
-    init(viewModel: FeedImageViewModel<UIImage>) {
-        self.viewModel = viewModel
+public class FeedImageCellController: FeedImageView {
+    private(set) lazy var cell = FeedImageCell()
+    private let delegate: FeedImageCellControllerDelegate
+
+    init(delegate: FeedImageCellControllerDelegate) {
+        self.delegate = delegate
+    }
+
+    func display(_ model: FeedImageModel<UIImage>) {
+        cell.descriptionLabel.text = model.description
+        cell.locationLabel.text = model.location
+        cell.locationContainer.isHidden = !model.hasLocation
+        cell.imageContentView.image = model.image
+        cell.reloadButton.isHidden = !model.shouldRetry
+        cell.isShimmering = model.isLoading
+        cell.onRetry = delegate.didRequestImage
     }
 
     func view() -> UITableViewCell {
-        let cell = binded(FeedImageCell())
-        viewModel.loadImageData()
+        delegate.didRequestImage()
         return cell
     }
 
     func prefetch() {
-        viewModel.loadImageData()
+        delegate.didRequestImage()
     }
 
     func cancelLoad() {
-        viewModel.cancel()
-    }
-
-    private func binded(_ view: FeedImageCell) -> UITableViewCell {
-        view.descriptionLabel.text = viewModel.description
-        view.locationLabel.text = viewModel.location
-        view.locationContainer.isHidden = !viewModel.hasLocation
-        view.imageContentView.image = nil
-
-        viewModel.onShouldRetryImageLoad = { [weak view] shouldRetry in
-            view?.reloadButton.isHidden = !shouldRetry
-        }
-
-        viewModel.onImageLoadingStateChange = { [weak view] isLoading in
-            view?.isShimmering = isLoading
-        }
-
-        viewModel.onImageLoad = { [weak view] image in
-            view?.imageContentView.image = image
-        }
-
-        view.onRetry = viewModel.loadImageData
-
-        return view
+        delegate.didCancelImageRequest()
     }
 }
