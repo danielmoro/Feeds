@@ -132,8 +132,12 @@ Line 2</string>
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="My Feed" id="caR-VY-b88"/>
+                    <connections>
+                        <outlet property="feedRefreshController" destination="YVg-5S-8OK" id="27P-LT-Tkz"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b4a-BF-Pd6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <customObject id="YVg-5S-8OK" customClass="FeedRefreshViewController" customModule="Feeds_iOS" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="497.10144927536237" y="135.9375"/>
         </scene>
