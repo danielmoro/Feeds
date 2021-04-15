@@ -66,8 +66,52 @@ final class FeedViewAdapter: FeedView {
 
     func display(feed: [FeedImage]) {
         controller?.tableModel = feed.map { model in
-            let viewModel = FeedImageViewModel(model: model, loader: loader, imageTransformer: UIImage.init)
-            return FeedImageCellController(viewModel: viewModel)
+            FeedImageCellComposer.feedImageCellComposedWith(model: model, loader: loader)
         }
+    }
+}
+
+extension WeakRefVirtualProxy: FeedImageView where T: FeedImageView {
+    func display(_ model: FeedImageModel<T.Image>) {
+        object?.display(model)
+    }
+}
+
+enum FeedImageCellComposer {
+    public static func feedImageCellComposedWith(model: FeedImage, loader: FeedImageLoader) -> FeedImageCellController {
+        let adapter = FeedImageCellPresentationAdapter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>(model: model, loader: loader)
+        let controller = FeedImageCellController(delegate: adapter)
+        adapter.presenter = FeedImagePresenter(view: WeakRefVirtualProxy(controller), imageTransformer: UIImage.init)
+        return controller
+    }
+}
+
+final class FeedImageCellPresentationAdapter<View: FeedImageView, Image>: FeedImageCellControllerDelegate where View.Image == Image {
+    init(model: FeedImage, loader: FeedImageLoader) {
+        self.model = model
+        self.loader = loader
+    }
+
+    private var model: FeedImage
+    private var task: FeedImageLoadTask?
+    private var loader: FeedImageLoader
+
+    var presenter: FeedImagePresenter<View, Image>?
+
+    func didRequestImage() {
+        presenter?.didStartLoadingImageData(for: model)
+        let model = self.model
+        task = loader.loadImageData(from: model.url, completion: { [weak self] resut in
+            switch resut {
+            case let .success(data):
+                self?.presenter?.didFinishLoadingImageData(with: data, for: model)
+            case let .failure(error):
+                self?.presenter?.didFailLoadingImageData(with: error, for: model)
+            }
+        })
+    }
+
+    func didCancelImageRequest() {
+        task?.cancel()
     }
 }

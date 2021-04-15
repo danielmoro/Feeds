@@ -190,7 +190,7 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view0?.isShowingRetryAction, true, "Expect retry action on the fist view if image load completes with invalid image data")
     }
 
-    func test_feedImageViewRetryAction_RetriesImageLoad() {
+    func test_feedImageViewRetryAction_retriesImageLoad() {
         let image0 = makeImage(url: URL(string: "https://image-url.com")!)
         let image1 = makeImage(url: URL(string: "https://another-image-url.com")!)
         let (sut, loader) = makeSUT()
