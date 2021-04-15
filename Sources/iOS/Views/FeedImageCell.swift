@@ -6,11 +6,11 @@
 import UIKit
 
 public class FeedImageCell: UITableViewCell {
-    @IBOutlet var locationContainer: UIView?
-    @IBOutlet var locationLabel: UILabel?
-    @IBOutlet var descriptionLabel: UILabel?
-    @IBOutlet var imageContentView: UIImageView?
-    @IBOutlet var reloadButton: UIButton?
+    @IBOutlet public var locationContainer: UIView!
+    @IBOutlet public var locationLabel: UILabel!
+    @IBOutlet public var descriptionLabel: UILabel!
+    @IBOutlet public var imageContentView: UIImageView!
+    @IBOutlet public var reloadButton: UIButton!
 
     public var onRetry: (() -> Void)?
 

@@ -36,9 +36,9 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
         tableModel.count
     }
 
-    override public func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let controller = cellController(atIndexPath: indexPath)
-        return controller.view()
+        return controller.view(in: tableView)
     }
 
     // MARK: - UITableViewDelegate

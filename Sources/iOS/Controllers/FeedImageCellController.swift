@@ -11,7 +11,7 @@ protocol FeedImageCellControllerDelegate {
 }
 
 public class FeedImageCellController: FeedImageView {
-    private(set) lazy var cell = FeedImageCell()
+    private(set) weak var cell: FeedImageCell?
     private let delegate: FeedImageCellControllerDelegate
 
     init(delegate: FeedImageCellControllerDelegate) {
@@ -19,18 +19,19 @@ public class FeedImageCellController: FeedImageView {
     }
 
     func display(_ model: FeedImageModel<UIImage>) {
-        cell.descriptionLabel?.text = model.description
-        cell.locationLabel?.text = model.location
-        cell.locationContainer?.isHidden = !model.hasLocation
-        cell.imageContentView?.image = model.image
-        cell.reloadButton?.isHidden = !model.shouldRetry
-        cell.isShimmering = model.isLoading
-        cell.onRetry = delegate.didRequestImage
+        cell?.descriptionLabel.text = model.description
+        cell?.locationLabel.text = model.location
+        cell?.locationContainer.isHidden = !model.hasLocation
+        cell?.imageContentView.image = model.image
+        cell?.reloadButton.isHidden = !model.shouldRetry
+        cell?.isShimmering = model.isLoading
+        cell?.onRetry = delegate.didRequestImage
     }
 
-    func view() -> UITableViewCell {
+    func view(in tableView: UITableView) -> UITableViewCell {
+        cell = tableView.dequeueReusableCell(withIdentifier: "FeedImageCell") as? FeedImageCell
         delegate.didRequestImage()
-        return cell
+        return cell!
     }
 
     func prefetch() {
