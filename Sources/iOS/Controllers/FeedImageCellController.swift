@@ -19,11 +19,11 @@ public class FeedImageCellController: FeedImageView {
     }
 
     func display(_ model: FeedImageModel<UIImage>) {
-        cell.descriptionLabel.text = model.description
-        cell.locationLabel.text = model.location
-        cell.locationContainer.isHidden = !model.hasLocation
-        cell.imageContentView.image = model.image
-        cell.reloadButton.isHidden = !model.shouldRetry
+        cell.descriptionLabel?.text = model.description
+        cell.locationLabel?.text = model.location
+        cell.locationContainer?.isHidden = !model.hasLocation
+        cell.imageContentView?.image = model.image
+        cell.reloadButton?.isHidden = !model.shouldRetry
         cell.isShimmering = model.isLoading
         cell.onRetry = delegate.didRequestImage
     }
