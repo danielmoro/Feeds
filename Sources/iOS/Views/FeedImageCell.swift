@@ -6,19 +6,15 @@
 import UIKit
 
 public class FeedImageCell: UITableViewCell {
-    public let locationContainer = UIView()
-    public let locationLabel = UILabel()
-    public let descriptionLabel = UILabel()
-    public let imageContentView = UIImageView()
-    public lazy var reloadButton: UIButton = {
-        let button = UIButton()
-        button.addTarget(self, action: #selector(reloadButtonTapped), for: .touchUpInside)
-        return button
-    }()
+    @IBOutlet public var locationContainer: UIView!
+    @IBOutlet public var locationLabel: UILabel!
+    @IBOutlet public var descriptionLabel: UILabel!
+    @IBOutlet public var imageContentView: UIImageView!
+    @IBOutlet public var reloadButton: UIButton!
 
     public var onRetry: (() -> Void)?
 
-    @objc
+    @IBAction
     private func reloadButtonTapped() {
         onRetry?()
     }

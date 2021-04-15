@@ -6,26 +6,25 @@
 import FeedsCore
 import UIKit
 
-public class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
-    private var feedRefreshController: FeedRefreshViewController?
+protocol FeedViewControllerDelegate {
+    func didRequestFeedRefresh()
+}
+
+public class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching, FeedLoadingView {
+    var delegate: FeedViewControllerDelegate?
     var tableModel: [FeedImageCellController] = [] {
         didSet {
             tableView.reloadData()
         }
     }
 
-    convenience init(refreshController: FeedRefreshViewController) {
-        self.init()
-        feedRefreshController = refreshController
-    }
-
     override public func viewDidLoad() {
         super.viewDidLoad()
 
-        refreshControl = feedRefreshController?.view
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
 
-        tableView.prefetchDataSource = self
-        feedRefreshController?.refresh()
+        refresh()
     }
 
     private func cellController(atIndexPath indexPath: IndexPath) -> FeedImageCellController {
@@ -42,9 +41,9 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
         tableModel.count
     }
 
-    override public func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let controller = cellController(atIndexPath: indexPath)
-        return controller.view()
+        return controller.view(in: tableView)
     }
 
     // MARK: - UITableViewDelegate
@@ -65,6 +64,20 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     public func tableView(_: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
             cancelCellControllerLoad(atIndexPath: indexPath)
+        }
+    }
+
+    // MARK: - FeedLoadingView
+
+    @objc func refresh() {
+        delegate?.didRequestFeedRefresh()
+    }
+
+    func display(isLoading: Bool) {
+        if isLoading {
+            refreshControl?.beginRefreshing()
+        } else {
+            refreshControl?.endRefreshing()
         }
     }
 }
