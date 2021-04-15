@@ -11,7 +11,7 @@ protocol FeedImageCellControllerDelegate {
 }
 
 public class FeedImageCellController: FeedImageView {
-    private(set) weak var cell: FeedImageCell?
+    private(set) var cell: FeedImageCell?
     private let delegate: FeedImageCellControllerDelegate
 
     init(delegate: FeedImageCellControllerDelegate) {
@@ -39,6 +39,11 @@ public class FeedImageCellController: FeedImageView {
     }
 
     func cancelLoad() {
+        cleanupCellForReuse()
         delegate.didCancelImageRequest()
+    }
+
+    func cleanupCellForReuse() {
+        cell = nil
     }
 }

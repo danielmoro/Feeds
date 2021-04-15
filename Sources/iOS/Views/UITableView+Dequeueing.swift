@@ -6,7 +6,7 @@
 import UIKit
 
 extension UITableView {
-    func dequeueReusableCell<T>() -> T {
+    func dequeueReusableCell<T: UITableViewCell>() -> T {
         let cellIdentifier = String(describing: T.self)
         let cell = dequeueReusableCell(withIdentifier: cellIdentifier)
         return cell as! T
