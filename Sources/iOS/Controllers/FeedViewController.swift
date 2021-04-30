@@ -21,8 +21,6 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     override public func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Feed"
-
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
 
