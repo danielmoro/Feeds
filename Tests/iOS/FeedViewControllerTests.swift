@@ -13,11 +13,8 @@ final class FeedViewControllerTests: XCTestCase {
         let (sut, _) = makeSUT()
 
         sut.loadViewIfNeeded()
-        let bundle = Bundle(for: FeedViewController.self)
-        let localizedKey = "FEED_TITLE_VIEW"
-        let localizedString = bundle.localizedString(forKey: localizedKey, value: nil, table: "Feeds")
 
-        XCTAssertNotEqual(localizedKey, localizedString)
+        let localizedString = localize("FEED_TITLE_VIEW", table: "Feeds")
         XCTAssertEqual(sut.title, localizedString)
     }
 
@@ -273,6 +270,8 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view0?.renderedImage, nil, "Expect no rendered images when load is finished after view is no longer visible")
     }
 
+    // MARK: - Helpers
+
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
@@ -357,9 +356,21 @@ final class FeedViewControllerTests: XCTestCase {
             assertThat(sut, hasViewConfiguredFor: image, at: index, file: file, line: line)
         }
     }
-}
 
-// MARK: - Helpers
+    // MARK: - Localization
+
+    private func localize(
+        _ key: String,
+        table: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> String {
+        let bundle = Bundle(for: FeedViewController.self)
+        let localizedString = bundle.localizedString(forKey: key, value: nil, table: table)
+        XCTAssertNotEqual(key, localizedString, "Missing localization for \(key) in \(table)", file: file, line: line)
+        return localizedString
+    }
+}
 
 class LoaderSpy: FeedLoader, FeedImageLoader {
     // MARK: - FeedLoader
