@@ -9,6 +9,14 @@ import UIKit
 import XCTest
 
 final class FeedViewControllerTests: XCTestCase {
+    func test_feedView_hasTitle() {
+        let (sut, _) = makeSUT()
+
+        sut.loadViewIfNeeded()
+
+        XCTAssertEqual(sut.title, "Feed")
+    }
+
     func test_loadFeedActions_requestFeedLoad() {
         let (sut, loader) = makeSUT()
 
