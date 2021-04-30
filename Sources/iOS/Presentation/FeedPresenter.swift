@@ -17,7 +17,7 @@ final class FeedPresenter {
     private let feedView: FeedView
     private let loadingView: FeedLoadingView
 
-    var title: String {
+    static var title: String {
         "Feed"
     }
 
