@@ -9,13 +9,33 @@ import UIKit
 public final class FeedUIComposer {
     private init() {}
     public static func feedComposedWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
-        let presentationAdapter = FeedLoaderPresentationAdapter(feedLoader: feedLoader)
+        let presentationAdapter = FeedLoaderPresentationAdapter(feedLoader: MainQueueDispatchDecorator(feedLoader))
         let feedController = FeedViewController.makeWith(delegate: presentationAdapter, title: FeedPresenter.title)
         let feedView = FeedViewAdapter(controller: feedController, loader: imageLoader)
         let loadingView = WeakRefVirtualProxy(feedController)
         presentationAdapter.presenter = FeedPresenter(feedView: feedView, loadingView: loadingView)
 
         return feedController
+    }
+}
+
+private class MainQueueDispatchDecorator: FeedLoader {
+    private let decoratee: FeedLoader
+
+    init(_ decoratee: FeedLoader) {
+        self.decoratee = decoratee
+    }
+
+    func load(completion: @escaping (FeedLoader.Result) -> Void) {
+        decoratee.load { result in
+            if Thread.isMainThread {
+                completion(result)
+            } else {
+                DispatchQueue.main.async {
+                    completion(result)
+                }
+            }
+        }
     }
 }
 
