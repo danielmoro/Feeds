@@ -9,7 +9,8 @@ import UIKit
 public final class FeedUIComposer {
     private init() {}
     public static func feedComposedWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
-        let presentationAdapter = FeedLoaderPresentationAdapter(feedLoader: MainQueueDispatchDecorator(feedLoader))
+        let decorator = MainQueueDispatchDecorator(decoratee: feedLoader)
+        let presentationAdapter = FeedLoaderPresentationAdapter(feedLoader: decorator)
         let feedController = FeedViewController.makeWith(delegate: presentationAdapter, title: FeedPresenter.title)
         let feedView = FeedViewAdapter(controller: feedController, loader: imageLoader)
         let loadingView = WeakRefVirtualProxy(feedController)
@@ -19,21 +20,29 @@ public final class FeedUIComposer {
     }
 }
 
-private class MainQueueDispatchDecorator: FeedLoader {
-    private let decoratee: FeedLoader
+private final class MainQueueDispatchDecorator<T> {
+    private let decoratee: T
 
-    init(_ decoratee: FeedLoader) {
+    init(decoratee: T) {
         self.decoratee = decoratee
     }
 
+    func dispatch(completion: @escaping () -> Void) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async {
+                completion()
+            }
+            return
+        }
+        completion()
+    }
+}
+
+extension MainQueueDispatchDecorator: FeedLoader where T == FeedLoader {
     func load(completion: @escaping (FeedLoader.Result) -> Void) {
-        decoratee.load { result in
-            if Thread.isMainThread {
+        decoratee.load { [weak self] result in
+            self?.dispatch {
                 completion(result)
-            } else {
-                DispatchQueue.main.async {
-                    completion(result)
-                }
             }
         }
     }
