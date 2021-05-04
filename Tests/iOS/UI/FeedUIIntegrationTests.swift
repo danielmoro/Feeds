@@ -8,7 +8,16 @@ import FeedsCore
 import UIKit
 import XCTest
 
-final class FeedViewControllerTests: XCTestCase {
+final class FeedUIIntegrationTests: XCTestCase {
+    func test_feedView_hasTitle() {
+        let (sut, _) = makeSUT()
+
+        sut.loadViewIfNeeded()
+
+        let localizedString = localize("FEED_TITLE_VIEW")
+        XCTAssertEqual(sut.title, localizedString)
+    }
+
     func test_loadFeedActions_requestFeedLoad() {
         let (sut, loader) = makeSUT()
 
@@ -261,6 +270,8 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view0?.renderedImage, nil, "Expect no rendered images when load is finished after view is no longer visible")
     }
 
+    // MARK: - Helpers
+
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
@@ -278,126 +289,5 @@ final class FeedViewControllerTests: XCTestCase {
         url: URL = URL(string: "http://any-url.com")!
     ) -> FeedImage {
         FeedImage(id: UUID(), description: description, location: location, url: url)
-    }
-
-    private func assertThat(
-        _ sut: FeedViewController,
-        hasViewConfiguredFor image: FeedImage,
-        at index: Int,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        let view = sut.feedImageView(at: index)
-
-        guard let cell = view as? FeedImageCell else {
-            return XCTFail(
-                "Expected \(FeedImageCell.self) instance, got \(String(describing: view)) instead",
-                file: file,
-                line: line
-            )
-        }
-
-        let shouldLocationBeVisible = (image.location != nil)
-        XCTAssertEqual(
-            cell.isShowingLocation,
-            shouldLocationBeVisible,
-            "Expected `isShowingLocation` to be \(shouldLocationBeVisible) for image view at index (\(index))",
-            file: file,
-            line: line
-        )
-
-        XCTAssertEqual(
-            cell.locationText,
-            image.location,
-            "Expected location text to be \(String(describing: image.location)) for image  view at index (\(index))",
-            file: file,
-            line: line
-        )
-
-        XCTAssertEqual(
-            cell.descriptionText,
-            image.description,
-            """
-            Expected description text to be \(String(describing: image.description)) \
-            for image view at index (\(index)
-            """,
-            file: file,
-            line: line
-        )
-    }
-
-    private func assertThat(
-        _ sut: FeedViewController,
-        isRendering images: [FeedImage],
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        guard sut.numberOfRenderedFeedImageViews == images.count else {
-            XCTFail(
-                "Expected \(images.count) images, got \(sut.numberOfRenderedFeedImageViews) instead",
-                file: file,
-                line: line
-            )
-            return
-        }
-
-        images.enumerated().forEach { index, image in
-            assertThat(sut, hasViewConfiguredFor: image, at: index, file: file, line: line)
-        }
-    }
-}
-
-// MARK: - Helpers
-
-class LoaderSpy: FeedLoader, FeedImageLoader {
-    // MARK: - FeedLoader
-
-    var feedRequests: [(FeedLoader.Result) -> Void] = []
-
-    func load(completion: @escaping (FeedLoader.Result) -> Void) {
-        feedRequests.append(completion)
-    }
-
-    func completeFeedLoading(with images: [FeedImage] = [], at index: Int) {
-        feedRequests[index](.success(images))
-    }
-
-    func completeFeedLoading(with error: Error, at index: Int) {
-        feedRequests[index](.failure(error))
-    }
-
-    // MARK: - FeedImageLoader
-
-    private class TaskSpy: FeedImageLoadTask {
-        init(cancelCallback: @escaping () -> Void) {
-            self.cancelCallback = cancelCallback
-        }
-
-        var cancelCallback: () -> Void
-        func cancel() {
-            cancelCallback()
-        }
-    }
-
-    var imageLoadRequests: [(url: URL, completion: (FeedImageResult) -> Void)] = []
-    var loadedImageURLs: [URL] {
-        imageLoadRequests.map(\.url)
-    }
-
-    var cancelledImageURLs: [URL] = []
-
-    func loadImageData(from url: URL, completion: @escaping (FeedImageResult) -> Void) -> FeedImageLoadTask {
-        imageLoadRequests.append((url, completion))
-        return TaskSpy { [weak self] in
-            self?.cancelledImageURLs.append(url)
-        }
-    }
-
-    func completeImageLoading(with data: Data = Data(), at index: Int) {
-        imageLoadRequests[index].completion(.success(data))
-    }
-
-    func completeImageLoadingWithError(at index: Int) {
-        imageLoadRequests[index].completion(.failure(anyNSError()))
     }
 }

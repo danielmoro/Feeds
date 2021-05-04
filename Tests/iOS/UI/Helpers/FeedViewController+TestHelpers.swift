@@ -56,33 +56,3 @@ extension FeedViewController {
         dataSource?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
     }
 }
-
-extension FeedImageCell {
-    var descriptionText: String? {
-        descriptionLabel.text
-    }
-
-    var locationText: String? {
-        locationLabel.text
-    }
-
-    var isShowingLocation: Bool {
-        !locationContainer.isHidden
-    }
-
-    var isShowingLoadingIndicator: Bool {
-        isShimmering == true
-    }
-
-    var renderedImage: Data? {
-        imageContentView.image?.pngData()
-    }
-
-    var isShowingRetryAction: Bool {
-        !reloadButton.isHidden
-    }
-
-    func simulateRetryAction() {
-        reloadButton.simulateTap()
-    }
-}

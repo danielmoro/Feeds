@@ -4,6 +4,7 @@
 //
 
 import FeedsCore
+import Foundation
 
 protocol FeedLoadingView {
     func display(isLoading: Bool)
@@ -16,6 +17,11 @@ protocol FeedView {
 final class FeedPresenter {
     private let feedView: FeedView
     private let loadingView: FeedLoadingView
+
+    static var title: String {
+        let bundle = Bundle(for: FeedPresenter.self)
+        return NSLocalizedString("FEED_TITLE_VIEW", tableName: "Feeds", bundle: bundle, comment: "")
+    }
 
     init(feedView: FeedView, loadingView: FeedLoadingView) {
         self.feedView = feedView
