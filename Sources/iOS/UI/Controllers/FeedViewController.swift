@@ -14,13 +14,7 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     var delegate: FeedViewControllerDelegate?
     var tableModel: [FeedImageCellController] = [] {
         didSet {
-            if Thread.isMainThread {
-                tableView.reloadData()
-            } else {
-                DispatchQueue.main.async { [weak self] in
-                    self?.tableView.reloadData()
-                }
-            }
+            tableView.reloadData()
         }
     }
 
@@ -80,12 +74,6 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     }
 
     func display(isLoading: Bool) {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async { [weak self] in
-                self?.display(isLoading: isLoading)
-            }
-            return
-        }
         if isLoading {
             refreshControl?.beginRefreshing()
         } else {
