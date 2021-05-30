@@ -20,7 +20,23 @@
                         <view key="tableHeaderView" contentMode="scaleToFill" id="YL4-yH-Rue" customClass="ErrorView" customModule="Feeds_iOS" customModuleProvider="target">
                             <rect key="frame" x="0.0" y="0.0" width="414" height="16"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zNt-qv-JU9">
+                                    <rect key="frame" x="0.0" y="-2.5" width="414" height="21"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <nil key="textColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                            </subviews>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            <constraints>
+                                <constraint firstAttribute="trailing" secondItem="zNt-qv-JU9" secondAttribute="trailing" id="1B3-e3-0JI"/>
+                                <constraint firstItem="zNt-qv-JU9" firstAttribute="leading" secondItem="YL4-yH-Rue" secondAttribute="leading" id="8ZG-i8-ZeM"/>
+                                <constraint firstItem="zNt-qv-JU9" firstAttribute="centerY" secondItem="YL4-yH-Rue" secondAttribute="centerY" id="bcT-En-9dW"/>
+                            </constraints>
+                            <connections>
+                                <outlet property="titleLabel" destination="zNt-qv-JU9" id="1Ry-Rn-m4h"/>
+                            </connections>
                         </view>
                         <view key="tableFooterView" contentMode="scaleToFill" id="H3B-UO-852">
                             <rect key="frame" x="0.0" y="675.00000034679067" width="414" height="16"/>

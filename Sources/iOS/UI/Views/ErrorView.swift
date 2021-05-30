@@ -6,5 +6,16 @@
 import UIKit
 
 public final class ErrorView: UIView {
-    public var message: String?
+    @IBOutlet
+    private var titleLabel: UILabel?
+
+    public var message: String? {
+        get {
+            titleLabel?.text
+        }
+
+        set {
+            titleLabel?.text = newValue
+        }
+    }
 }
