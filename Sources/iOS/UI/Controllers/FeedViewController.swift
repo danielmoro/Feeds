@@ -89,7 +89,7 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
 
     // MARK: - FeedErrorView
 
-    func display(error: String) {
+    func display(error: String?) {
         errorView.message = error
     }
 }
