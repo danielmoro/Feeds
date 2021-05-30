@@ -3,6 +3,7 @@
 //  Copyright © 2021 Daniel Moro. All rights reserved.
 //
 
+import FeedsCore
 import UIKit
 
 protocol FeedImageCellControllerDelegate {
@@ -18,7 +19,7 @@ public class FeedImageCellController: FeedImageView {
         self.delegate = delegate
     }
 
-    func display(_ model: FeedImageModel<UIImage>) {
+    public func display(_ model: FeedImageModel<UIImage>) {
         cell?.descriptionLabel.text = model.description
         cell?.locationLabel.text = model.location
         cell?.locationContainer.isHidden = !model.hasLocation
