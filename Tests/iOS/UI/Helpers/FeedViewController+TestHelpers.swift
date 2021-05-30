@@ -23,6 +23,10 @@ extension FeedViewController {
         0
     }
 
+    var errorMessage: String? {
+        errorView?.message
+    }
+
     func feedImageView(at index: Int) -> UITableViewCell? {
         let dataSource = tableView.dataSource
         let indexPath = IndexPath(row: index, section: feedImagesSection)

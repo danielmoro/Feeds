@@ -3,6 +3,7 @@
 //  Copyright © 2021 Daniel Moro. All rights reserved.
 //
 
+import FeedsCore
 import Foundation
 
 final class WeakRefVirtualProxy<T: AnyObject> {
@@ -22,5 +23,11 @@ extension WeakRefVirtualProxy: FeedLoadingView where T: FeedLoadingView {
 extension WeakRefVirtualProxy: FeedImageView where T: FeedImageView {
     func display(_ model: FeedImageModel<T.Image>) {
         object?.display(model)
+    }
+}
+
+extension WeakRefVirtualProxy: FeedErrorView where T: FeedErrorView {
+    func display(error: String?) {
+        object?.display(error: error)
     }
 }

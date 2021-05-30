@@ -7,6 +7,7 @@
 //
 
 import Feeds_iOS
+import FeedsCore
 import XCTest
 
 extension FeedUIIntegrationTests {
@@ -15,7 +16,7 @@ extension FeedUIIntegrationTests {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> String {
-        let bundle = Bundle(for: FeedViewController.self)
+        let bundle = Bundle(for: FeedPresenter.self)
         let table = "Feeds"
         let localizedString = bundle.localizedString(forKey: key, value: nil, table: table)
         if localizedString == key {
