@@ -18,14 +18,18 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <view key="tableHeaderView" contentMode="scaleToFill" id="YL4-yH-Rue" customClass="ErrorView" customModule="Feeds_iOS" customModuleProvider="target">
-                            <rect key="frame" x="0.0" y="0.0" width="414" height="16"/>
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zNt-qv-JU9">
-                                    <rect key="frame" x="0.0" y="-2.5" width="414" height="21"/>
+                                    <rect key="frame" x="0.0" y="12" width="414" height="20.5"/>
+                                    <gestureRecognizers/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
+                                    <connections>
+                                        <outletCollection property="gestureRecognizers" destination="A2o-1K-c3R" appends="YES" id="6jc-J5-EKK"/>
+                                    </connections>
                                 </label>
                             </subviews>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -39,13 +43,13 @@
                             </connections>
                         </view>
                         <view key="tableFooterView" contentMode="scaleToFill" id="H3B-UO-852">
-                            <rect key="frame" x="0.0" y="675.00000034679067" width="414" height="16"/>
+                            <rect key="frame" x="0.0" y="703.00000034679067" width="414" height="16"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="FeedImageCell" rowHeight="610" id="SHa-Mc-88r" customClass="FeedImageCell" customModule="Feeds_iOS" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="40.5" width="414" height="610"/>
+                                <rect key="frame" x="0.0" y="68.5" width="414" height="610"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="SHa-Mc-88r" id="Sug-WZ-bpa">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="610"/>
@@ -153,6 +157,11 @@ Line 2</string>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b4a-BF-Pd6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="A2o-1K-c3R">
+                    <connections>
+                        <action selector="hideMessage" destination="YL4-yH-Rue" id="oOM-oY-9bK"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="497.10144927536237" y="135.9375"/>
         </scene>

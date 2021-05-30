@@ -16,6 +16,28 @@ public final class ErrorView: UIView {
 
         set {
             titleLabel?.text = newValue
+            if newValue == nil {
+                hideMessage()
+            } else {
+                showMesage()
+            }
+        }
+    }
+
+    private func showMesage() {
+        guard titleLabel?.alpha == 0 else {
+            return
+        }
+
+        UIView.animate(withDuration: 0.25) { [weak self] in
+            self?.titleLabel?.alpha = 1
+        }
+    }
+
+    @IBAction
+    private func hideMessage() {
+        UIView.animate(withDuration: 0.25) { [weak self] in
+            self?.titleLabel?.alpha = 0
         }
     }
 }
