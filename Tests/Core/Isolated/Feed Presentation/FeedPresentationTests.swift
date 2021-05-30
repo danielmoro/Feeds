@@ -11,12 +11,20 @@ final class FeedPresenter {
 
 class FeedPresentationTests: XCTestCase {
     func test_init_doesNotPressentErrorToAnyView() {
-        let view = ViewSpy()
-        _ = FeedPresenter(view: view)
+        let (_, view) = makeSUT()
         XCTAssertEqual(view.messages.isEmpty, true)
     }
 
     // MARK: - Helpers
+
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: FeedPresenter, view: ViewSpy) {
+        let view = ViewSpy()
+        let sut = FeedPresenter(view: view)
+        trackMemoryLeaks(view, file: file, line: line)
+        trackMemoryLeaks(sut, file: file, line: line)
+
+        return (sut, view)
+    }
 
     private class ViewSpy {
         var messages: [Any] = []
