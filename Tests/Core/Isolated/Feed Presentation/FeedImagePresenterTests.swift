@@ -72,12 +72,12 @@ class FeedImagePresenterTests: XCTestCase {
 
     func test_didStartLoadingImageData_presentsModel() {
         let (sut, view) = makeSUT()
-        let model = uniqueImage()
-        sut.didStartLoadingImageData(for: model)
+        let image = uniqueImage()
+        sut.didStartLoadingImageData(for: image)
 
         let message = view.messages.first
-        XCTAssertEqual(message?.description, model.description)
-        XCTAssertEqual(message?.location, model.location)
+        XCTAssertEqual(message?.description, image.description)
+        XCTAssertEqual(message?.location, image.location)
         XCTAssertEqual(message?.isLoading, true)
         XCTAssertNil(message?.image)
         XCTAssertEqual(message?.shouldRetry, false)
@@ -85,12 +85,12 @@ class FeedImagePresenterTests: XCTestCase {
 
     func test_didFailLoadingImageData_displaysRetry() {
         let (sut, view) = makeSUT()
-        let model = uniqueImage()
-        sut.didFailLoadingImageData(with: anyNSError(), for: model)
+        let image = uniqueImage()
+        sut.didFailLoadingImageData(with: anyNSError(), for: image)
 
         let message = view.messages.first
-        XCTAssertEqual(message?.description, model.description)
-        XCTAssertEqual(message?.location, model.location)
+        XCTAssertEqual(message?.description, image.description)
+        XCTAssertEqual(message?.location, image.location)
         XCTAssertEqual(message?.isLoading, false)
         XCTAssertNil(message?.image)
         XCTAssertEqual(message?.shouldRetry, true)
@@ -98,12 +98,12 @@ class FeedImagePresenterTests: XCTestCase {
 
     func test_didFinishLoadingImageData_displaysRetryWhenImageTransformationFails() {
         let (sut, view) = makeSUT(imageTransformer: { _ in nil })
-        let model = uniqueImage()
-        sut.didFinishLoadingImageData(with: Data(), for: model)
+        let image = uniqueImage()
+        sut.didFinishLoadingImageData(with: Data(), for: image)
 
         let message = view.messages.first
-        XCTAssertEqual(message?.description, model.description)
-        XCTAssertEqual(message?.location, model.location)
+        XCTAssertEqual(message?.description, image.description)
+        XCTAssertEqual(message?.location, image.location)
         XCTAssertEqual(message?.isLoading, false)
         XCTAssertNil(message?.image)
         XCTAssertEqual(message?.shouldRetry, true)
@@ -112,12 +112,12 @@ class FeedImagePresenterTests: XCTestCase {
     func test_didFinishLoadingImageData_displaysImageWhenImageTransformationSucceeds() {
         let transformedData = AnyImage()
         let (sut, view) = makeSUT(imageTransformer: { _ in transformedData })
-        let model = uniqueImage()
-        sut.didFinishLoadingImageData(with: Data(), for: model)
+        let image = uniqueImage()
+        sut.didFinishLoadingImageData(with: Data(), for: image)
 
         let message = view.messages.first
-        XCTAssertEqual(message?.description, model.description)
-        XCTAssertEqual(message?.location, model.location)
+        XCTAssertEqual(message?.description, image.description)
+        XCTAssertEqual(message?.location, image.location)
         XCTAssertEqual(message?.isLoading, false)
         XCTAssertEqual(message?.image, transformedData)
         XCTAssertEqual(message?.shouldRetry, false)
