@@ -75,7 +75,7 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
         delegate?.didRequestFeedRefresh()
     }
 
-    func display(isLoading: Bool) {
+    public func display(isLoading: Bool) {
         if isLoading {
             refreshControl?.beginRefreshing()
         } else {
@@ -85,7 +85,7 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
 
     // MARK: - FeedErrorView
 
-    func display(error: String?) {
+    public func display(error: String?) {
         errorView?.message = error
     }
 }

@@ -3,6 +3,7 @@
 //  Copyright © 2021 Daniel Moro. All rights reserved.
 //
 
+import FeedsCore
 import Foundation
 
 final class WeakRefVirtualProxy<T: AnyObject> {
