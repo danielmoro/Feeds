@@ -7,3 +7,4 @@
 */
 
 "FEED_TITLE_VIEW" = "Feed";
+"FEED_VIEW_CONNECTION_ERROR" = "Connection Error";
