@@ -36,6 +36,7 @@ final class FeedPresenter {
 
     func didFinishLoadingFeed(with items: [FeedImage]) {
         feedView.display(feed: items)
+        loadingView.display(isLoading: false)
     }
 }
 
@@ -51,11 +52,11 @@ class FeedPresentationTests: XCTestCase {
         XCTAssertEqual(view.messages, [.displayError(nil), .displayIsLoading(true)])
     }
 
-    func test_didFinishLoadingFeedWithItems_displaysLoadedFeed() {
+    func test_didFinishLoadingFeedWithItems_displaysLoadedFeedAndFinishLoading() {
         let (sut, view) = makeSUT()
         let anyFeed = [uniqueImage(), uniqueImage()]
         sut.didFinishLoadingFeed(with: anyFeed)
-        XCTAssertEqual(view.messages, [.displayItems(anyFeed)])
+        XCTAssertEqual(view.messages, [.displayItems(anyFeed), .displayIsLoading(false)])
     }
 
     // MARK: - Helpers
