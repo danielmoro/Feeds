@@ -301,6 +301,12 @@ final class FeedUIIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1)
     }
 
+    func test_feedImageView_DoesNotRenderErrorOnLoad() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        XCTAssertEqual(sut.erroMessage, nil)
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(
