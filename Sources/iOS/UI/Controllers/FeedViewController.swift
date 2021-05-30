@@ -22,7 +22,7 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
         }
     }
 
-    public let errorView = ErrorView()
+    @IBOutlet public private(set) var errorView: ErrorView?
 
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -90,6 +90,6 @@ public class FeedViewController: UITableViewController, UITableViewDataSourcePre
     // MARK: - FeedErrorView
 
     func display(error: String?) {
-        errorView.message = error
+        errorView?.message = error
     }
 }
