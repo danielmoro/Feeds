@@ -32,6 +32,11 @@ class FeedPresentationTests: XCTestCase {
         XCTAssertEqual(view.messages, [.displayError(localize("FEED_VIEW_CONNECTION_ERROR")), .displayIsLoading(false)])
     }
 
+    func test_title() {
+        let (sut, view) = makeSUT()
+        XCTAssertEqual(FeedPresenter.title, localize("FEED_TITLE_VIEW"))
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: FeedPresenter, view: ViewSpy) {
