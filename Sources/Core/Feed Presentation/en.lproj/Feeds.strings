@@ -1,0 +1,8 @@
+/* 
+  Feeds.strings
+  Feeds
+
+  Created by Daniel Moro on 30.5.21..
+  Copyright © 2021 Daniel Moro. All rights reserved.
+*/
+"FEED_VIEW_CONNECTION_ERROR" = "Connection Error";
