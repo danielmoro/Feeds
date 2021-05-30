@@ -301,10 +301,15 @@ final class FeedUIIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1)
     }
 
-    func test_feedImageView_DoesNotRenderErrorOnLoad() {
+    func test_feedImageView_rendersErrorMessageOnError() {
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
-        XCTAssertEqual(sut.erroMessage, nil)
+
+        XCTAssertEqual(sut.errorMessage, nil)
+
+        loader.completeFeedLoading(with: anyNSError(), at: 0)
+
+        XCTAssertEqual(sut.errorMessage, localize("FEED_VIEW_CONNECTION_ERROR"))
     }
 
     // MARK: - Helpers
