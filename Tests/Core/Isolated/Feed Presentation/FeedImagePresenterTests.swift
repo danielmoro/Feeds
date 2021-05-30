@@ -6,10 +6,10 @@
 import FeedsCore
 import XCTest
 
-struct FeedImageModel {
+struct FeedImageModel<Image> {
     var description: String?
     var location: String?
-    var image: Any?
+    var image: Image?
     var isLoading: Bool
     var shouldRetry: Bool
     var hasLocation: Bool {
@@ -18,15 +18,18 @@ struct FeedImageModel {
 }
 
 protocol FeedImageView {
-    // associatedtype Image
-    func display(_ model: FeedImageModel)
+    associatedtype Image
+    func display(_ model: FeedImageModel<Image>)
 }
 
-final class FeedImagePresenter {
-    private let view: FeedImageView
+final class FeedImagePresenter<View, Image> where View: FeedImageView, View.Image == Image {
+    private var imageTransformer: (Data) -> Image?
 
-    init(view: FeedImageView) {
+    var view: View
+
+    init(view: View, imageTransformer: @escaping ((Data) -> Image?)) {
         self.view = view
+        self.imageTransformer = imageTransformer
     }
 
     func didStartLoadingImageData(for model: FeedImage) {
@@ -39,13 +42,14 @@ final class FeedImagePresenter {
         ))
     }
 
-    func didFinishLoadingImageData(with _: Data, for model: FeedImage) {
+    func didFinishLoadingImageData(with data: Data, for model: FeedImage) {
+        let image = imageTransformer(data)
         view.display(FeedImageModel(
             description: model.description,
             location: model.location,
-            image: nil,
+            image: image,
             isLoading: false,
-            shouldRetry: true
+            shouldRetry: image == nil
         ))
     }
 
@@ -92,8 +96,8 @@ class FeedImagePresenterTests: XCTestCase {
         XCTAssertEqual(message?.shouldRetry, true)
     }
 
-    func test_didFinishLoadingImageData_displaysRetryWhenImageTransformationfails() {
-        let (sut, view) = makeSUT()
+    func test_didFinishLoadingImageData_displaysRetryWhenImageTransformationFails() {
+        let (sut, view) = makeSUT(imageTransformer: { _ in nil })
         let model = uniqueImage()
         sut.didFinishLoadingImageData(with: Data(), for: model)
 
@@ -105,25 +109,29 @@ class FeedImagePresenterTests: XCTestCase {
         XCTAssertEqual(message?.shouldRetry, true)
     }
 
-//    func test_didFinishLoadingImageData_displaysImage() {
-//        let (sut, view) = makeSUT()
-//        let model = uniqueImage()
-//        let imageData = UIImage.make(withColor: UIColor.red.cgColor).pngData()!
-//        sut.didFinishLoadingImageData(with: imageData, for: model)
-//
-//        let message = view.messages.first
-//        XCTAssertEqual(message?.description, model.description)
-//        XCTAssertEqual(message?.location, model.location)
-//        XCTAssertEqual(message?.isLoading, true)
-//        XCTAssertNil(message?.image)
-//        XCTAssertEqual(message?.shouldRetry, false)
-//    }
+    func test_didFinishLoadingImageData_displaysImageWhenImageTransformationSucceeds() {
+        let transformedData = AnyImage()
+        let (sut, view) = makeSUT(imageTransformer: { _ in transformedData })
+        let model = uniqueImage()
+        sut.didFinishLoadingImageData(with: Data(), for: model)
+
+        let message = view.messages.first
+        XCTAssertEqual(message?.description, model.description)
+        XCTAssertEqual(message?.location, model.location)
+        XCTAssertEqual(message?.isLoading, false)
+        XCTAssertEqual(message?.image, transformedData)
+        XCTAssertEqual(message?.shouldRetry, false)
+    }
 
     // MARK: - Helpers
 
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: FeedImagePresenter, view: ViewSpy) {
+    private func makeSUT(
+        imageTransformer: @escaping (Data) -> AnyImage? = { _ in nil },
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> (sut: FeedImagePresenter<ViewSpy, AnyImage>, view: ViewSpy) {
         let view = ViewSpy()
-        let sut = FeedImagePresenter(view: view)
+        let sut = FeedImagePresenter(view: view, imageTransformer: imageTransformer)
         trackMemoryLeaks(view, file: file, line: line)
         trackMemoryLeaks(sut, file: file, line: line)
 
@@ -131,10 +139,12 @@ class FeedImagePresenterTests: XCTestCase {
     }
 
     private class ViewSpy: FeedImageView {
-        var messages: [FeedImageModel] = []
+        var messages: [FeedImageModel<AnyImage>] = []
 
-        func display(_ model: FeedImageModel) {
+        func display(_ model: FeedImageModel<AnyImage>) {
             messages.append(model)
         }
     }
+
+    private struct AnyImage: Equatable {}
 }
