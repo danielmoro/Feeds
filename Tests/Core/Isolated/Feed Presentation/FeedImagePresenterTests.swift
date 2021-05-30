@@ -38,6 +38,18 @@ final class FeedImagePresenter {
             shouldRetry: false
         ))
     }
+
+    func didFinishLoadingImageData(with _: Data, for _: FeedImage) {}
+
+    func didFailLoadingImageData(with _: Error, for model: FeedImage) {
+        view.display(FeedImageModel(
+            description: model.description,
+            location: model.location,
+            image: nil,
+            isLoading: false,
+            shouldRetry: true
+        ))
+    }
 }
 
 class FeedImagePresenterTests: XCTestCase {
@@ -58,6 +70,33 @@ class FeedImagePresenterTests: XCTestCase {
         XCTAssertNil(message?.image)
         XCTAssertEqual(message?.shouldRetry, false)
     }
+
+    func test_didFailLoadingImageData_displaysRetry() {
+        let (sut, view) = makeSUT()
+        let model = uniqueImage()
+        sut.didFailLoadingImageData(with: anyNSError(), for: model)
+
+        let message = view.messages.first
+        XCTAssertEqual(message?.description, model.description)
+        XCTAssertEqual(message?.location, model.location)
+        XCTAssertEqual(message?.isLoading, false)
+        XCTAssertNil(message?.image)
+        XCTAssertEqual(message?.shouldRetry, true)
+    }
+
+//    func test_didFinishLoadingImageData_displaysImage() {
+//        let (sut, view) = makeSUT()
+//        let model = uniqueImage()
+//        let imageData = UIImage.make(withColor: UIColor.red.cgColor).pngData()!
+//        sut.didFinishLoadingImageData(with: imageData, for: model)
+//
+//        let message = view.messages.first
+//        XCTAssertEqual(message?.description, model.description)
+//        XCTAssertEqual(message?.location, model.location)
+//        XCTAssertEqual(message?.isLoading, true)
+//        XCTAssertNil(message?.image)
+//        XCTAssertEqual(message?.shouldRetry, false)
+//    }
 
     // MARK: - Helpers
 
