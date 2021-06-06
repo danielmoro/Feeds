@@ -41,7 +41,7 @@ class RemoteFeedImageLoader: FeedImageLoader {
 }
 
 class RemoteFeedImageLoaderTests: XCTestCase {
-    func test_load_returnsErrorOnConnectionFailed() {
+    func test_load_generatesErrorOnConnectionFailed() {
         let (sut, client) = makeSUT()
 
         expect(sut, loadDataFrom: anyURL(), toFinishWith: .failure(RemoteFeedImageLoader.Error.connectivity)) {
@@ -49,7 +49,7 @@ class RemoteFeedImageLoaderTests: XCTestCase {
         }
     }
 
-    func test_load_returnsErrorOnInvalidData() {
+    func test_load_generatesErrorOnInvalidData() {
         let (sut, client) = makeSUT()
 
         expect(sut, loadDataFrom: anyURL(), toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
