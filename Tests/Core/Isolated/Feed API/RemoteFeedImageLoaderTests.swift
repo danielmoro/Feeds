@@ -16,16 +16,16 @@ class RemoteFeedImageLoader: FeedImageLoader {
         func cancel() {}
     }
 
-    private let httpClient: HTTPClient
+    private let client: HTTPClient
 
-    init(httpClient: HTTPClient) {
-        self.httpClient = httpClient
+    init(client: HTTPClient) {
+        self.client = client
     }
 
     func loadImageData(from url: URL, completion: @escaping (FeedImageResult) -> Void) -> FeedImageLoadTask {
-        httpClient.get(from: url) { result in
+        client.get(from: url) { result in
             switch result {
-            case let .success(response, data):
+            case let .success((response, data)):
                 if response.statusCode == 200, !data.isEmpty {
                     completion(.success(data))
                 } else {
@@ -70,34 +70,12 @@ class RemoteFeedImageLoaderTests: XCTestCase {
 
     private func makeSUT() -> (sut: RemoteFeedImageLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
-        let sut = RemoteFeedImageLoader(httpClient: client)
+        let sut = RemoteFeedImageLoader(client: client)
 
         return (sut, client)
     }
 
-    private class HTTPClientSpy: HTTPClient {
-        var messages: [(url: URL, completion: ((HTTPClient.Result) -> Void)?)] = []
-
-        func get(from url: URL, completion: ((HTTPClient.Result) -> Void)?) {
-            messages.append((url, completion))
-        }
-
-        func complete(with error: Error, at index: Int = 0) {
-            messages[index].completion?(.failure(error))
-        }
-
-        func complete(withStatusCode code: Int, data: Data, at index: Int = 0) {
-            let response = HTTPURLResponse(
-                url: messages[index].url,
-                statusCode: code,
-                httpVersion: nil,
-                headerFields: nil
-            )!
-            messages[index].completion?(.success((response, data)))
-        }
-    }
-
-    func expect(
+    private func expect(
         _ sut: RemoteFeedImageLoader,
         loadDataFrom url: URL,
         toFinishWith expectedResult: RemoteFeedImageLoader.FeedImageResult,
