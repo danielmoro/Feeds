@@ -22,7 +22,7 @@ class RemoteFeedImageLoader: FeedImageLoader {
         self.client = client
     }
 
-    func loadImageData(from url: URL, completion: @escaping (FeedImageResult) -> Void) -> FeedImageLoadTask {
+    func loadImageData(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoadTask {
         client.get(from: url) { [weak self] result in
             guard self != nil else { return }
             switch result {
@@ -107,7 +107,7 @@ class RemoteFeedImageLoaderTests: XCTestCase {
         let client = HTTPClientSpy()
         var sut: RemoteFeedImageLoader? = RemoteFeedImageLoader(client: client)
 
-        var capturedResults: [FeedImageLoader.FeedImageResult] = []
+        var capturedResults: [FeedImageLoader.Result] = []
         sut?.loadImageData(from: anyURL(), completion: { result in
             capturedResults.append(result)
         })
@@ -130,7 +130,7 @@ class RemoteFeedImageLoaderTests: XCTestCase {
 
     private func expect(
         _ sut: RemoteFeedImageLoader,
-        toFinishWith expectedResult: RemoteFeedImageLoader.FeedImageResult,
+        toFinishWith expectedResult: RemoteFeedImageLoader.Result,
         when action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line
