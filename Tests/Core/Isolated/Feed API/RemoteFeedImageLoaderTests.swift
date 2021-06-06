@@ -26,7 +26,11 @@ class RemoteFeedImageLoader: FeedImageLoader {
         httpClient.get(from: url) { result in
             switch result {
             case let .success(response, data):
-                completion(.failure(Error.invalidData))
+                if response.statusCode == 200, !data.isEmpty {
+                    completion(.success(data))
+                } else {
+                    completion(.failure(Error.invalidData))
+                }
             case .failure:
                 completion(.failure(Error.connectivity))
             }
@@ -50,6 +54,15 @@ class RemoteFeedImageLoaderTests: XCTestCase {
 
         expect(sut, loadDataFrom: anyURL(), toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
             client.complete(withStatusCode: 200, data: Data())
+        }
+    }
+
+    func test_load_deliversValidImageOnSuccessfulCompletion() {
+        let (sut, client) = makeSUT()
+        let validData = Data("non-empty content".utf8)
+
+        expect(sut, loadDataFrom: anyURL(), toFinishWith: .success(validData)) {
+            client.complete(withStatusCode: 200, data: validData)
         }
     }
 
