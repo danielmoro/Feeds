@@ -12,8 +12,12 @@ class RemoteFeedImageLoader: FeedImageLoader {
         case invalidData
     }
 
-    private struct RemoteFeedImageLoadTask: FeedImageLoadTask {
-        func cancel() {}
+    private struct HTTPClientTaskWrapper: FeedImageLoadTask {
+        let task: HTTPClientTask
+
+        func cancel() {
+            task.cancel()
+        }
     }
 
     private let client: HTTPClient
@@ -23,7 +27,7 @@ class RemoteFeedImageLoader: FeedImageLoader {
     }
 
     func loadImageData(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoadTask {
-        client.get(from: url) { [weak self] result in
+        let clientTask = client.get(from: url) { [weak self] result in
             guard self != nil else { return }
             switch result {
             case let .success((response, data)):
@@ -37,7 +41,7 @@ class RemoteFeedImageLoader: FeedImageLoader {
             }
         }
 
-        return RemoteFeedImageLoadTask()
+        return HTTPClientTaskWrapper(task: clientTask)
     }
 }
 
@@ -108,7 +112,7 @@ class RemoteFeedImageLoaderTests: XCTestCase {
         var sut: RemoteFeedImageLoader? = RemoteFeedImageLoader(client: client)
 
         var capturedResults: [FeedImageLoader.Result] = []
-        sut?.loadImageData(from: anyURL(), completion: { result in
+        _ = sut?.loadImageData(from: anyURL(), completion: { result in
             capturedResults.append(result)
         })
 

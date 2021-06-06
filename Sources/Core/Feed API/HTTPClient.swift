@@ -5,7 +5,12 @@
 
 import Foundation
 
+public protocol HTTPClientTask {
+    func cancel()
+}
+
 public protocol HTTPClient {
     typealias Result = Swift.Result<(HTTPURLResponse, Data), Error>
-    func get(from url: URL, completion: ((Result) -> Void)?)
+    @discardableResult
+    func get(from url: URL, completion: ((Result) -> Void)?) -> HTTPClientTask
 }
