@@ -41,10 +41,33 @@ class RemoteFeedImageLoader: FeedImageLoader {
 }
 
 class RemoteFeedImageLoaderTests: XCTestCase {
+    func test_init_doesNotPerformAnyURLRequests() {
+        let (_, client) = makeSUT()
+        XCTAssertEqual(client.requestedURLs.count, 0)
+    }
+
+    func test_loadImageDataFromURL_requestsDataFromURL() {
+        let (sut, client) = makeSUT()
+        let url = anyURL()
+        _ = sut.loadImageData(from: url, completion: { _ in })
+
+        XCTAssertEqual(client.requestedURLs, [url])
+    }
+
+    func test_loadImageDataFromURLTwice_requestsDataFromURLTwice() {
+        let (sut, client) = makeSUT()
+        let url = anyURL()
+
+        _ = sut.loadImageData(from: url, completion: { _ in })
+        _ = sut.loadImageData(from: url, completion: { _ in })
+
+        XCTAssertEqual(client.requestedURLs, [url, url])
+    }
+
     func test_load_generatesErrorOnConnectionFailed() {
         let (sut, client) = makeSUT()
 
-        expect(sut, loadDataFrom: anyURL(), toFinishWith: .failure(RemoteFeedImageLoader.Error.connectivity)) {
+        expect(sut, toFinishWith: .failure(RemoteFeedImageLoader.Error.connectivity)) {
             client.complete(with: anyNSError())
         }
     }
@@ -52,7 +75,7 @@ class RemoteFeedImageLoaderTests: XCTestCase {
     func test_load_generatesErrorOnInvalidData() {
         let (sut, client) = makeSUT()
 
-        expect(sut, loadDataFrom: anyURL(), toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
+        expect(sut, toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
             client.complete(withStatusCode: 200, data: Data())
         }
     }
@@ -61,29 +84,42 @@ class RemoteFeedImageLoaderTests: XCTestCase {
         let (sut, client) = makeSUT()
         let validData = Data("non-empty content".utf8)
 
-        expect(sut, loadDataFrom: anyURL(), toFinishWith: .success(validData)) {
+        expect(sut, toFinishWith: .success(validData)) {
             client.complete(withStatusCode: 200, data: validData)
         }
     }
 
+//    func test_load_generatesErrorOnNon200HTTPResponse() {
+//        let (sut, client) = makeSUT()
+//        let sampleCodes = [199, 201, 300, 400, 500]
+//        let validData = Data("non-empty content".utf8)
+//
+//        sampleCodes.enumerated().forEach { _, code in
+//            expect(sut, loadDataFrom: anyURL(), toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
+//                client.complete(withStatusCode: code, data: validData)
+//            }
+//        }
+//    }
+
     // MARK: - Helpers
 
-    private func makeSUT() -> (sut: RemoteFeedImageLoader, client: HTTPClientSpy) {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: RemoteFeedImageLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
         let sut = RemoteFeedImageLoader(client: client)
-
+        trackMemoryLeaks(client, file: file, line: line)
+        trackMemoryLeaks(sut, file: file, line: line)
         return (sut, client)
     }
 
     private func expect(
         _ sut: RemoteFeedImageLoader,
-        loadDataFrom url: URL,
         toFinishWith expectedResult: RemoteFeedImageLoader.FeedImageResult,
         when action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
         let expectation = XCTestExpectation(description: "Wait for load completion")
+        let url = anyURL()
         _ = sut.loadImageData(from: url) { receivedResult in
             switch (receivedResult, expectedResult) {
             case let (.success(receivedItems), .success(expectedItems)):
