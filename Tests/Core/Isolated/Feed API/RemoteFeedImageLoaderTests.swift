@@ -64,7 +64,7 @@ class RemoteFeedImageLoaderTests: XCTestCase {
         XCTAssertEqual(client.requestedURLs, [url, url])
     }
 
-    func test_load_generatesErrorOnConnectionFailed() {
+    func test_loadImageDataFromURL_generatesErrorOnClientError() {
         let (sut, client) = makeSUT()
 
         expect(sut, toFinishWith: .failure(RemoteFeedImageLoader.Error.connectivity)) {
@@ -72,15 +72,28 @@ class RemoteFeedImageLoaderTests: XCTestCase {
         }
     }
 
-    func test_load_generatesErrorOnInvalidData() {
+    func test_loadImageDataFromURL_generatesInvalidDataErrorOnNon200HTTPResponse() {
         let (sut, client) = makeSUT()
+        let sampleCodes = [199, 201, 300, 400, 500]
+        let validData = Data("non-empty content".utf8)
 
-        expect(sut, toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
-            client.complete(withStatusCode: 200, data: Data())
+        sampleCodes.enumerated().forEach { index, code in
+            expect(sut, toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
+                client.complete(withStatusCode: code, data: validData, at: index)
+            }
         }
     }
 
-    func test_load_deliversValidImageOnSuccessfulCompletion() {
+    func test_loadImageDataFromURL_generatesInvalidDataErrorOnEmptyData() {
+        let (sut, client) = makeSUT()
+        let emptyData = Data()
+
+        expect(sut, toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
+            client.complete(withStatusCode: 200, data: emptyData)
+        }
+    }
+
+    func test_loadImageDataFromURL_deliversNonEmptyDataOnSuccessfulCompletion() {
         let (sut, client) = makeSUT()
         let validData = Data("non-empty content".utf8)
 
@@ -89,17 +102,7 @@ class RemoteFeedImageLoaderTests: XCTestCase {
         }
     }
 
-//    func test_load_generatesErrorOnNon200HTTPResponse() {
-//        let (sut, client) = makeSUT()
-//        let sampleCodes = [199, 201, 300, 400, 500]
-//        let validData = Data("non-empty content".utf8)
 //
-//        sampleCodes.enumerated().forEach { _, code in
-//            expect(sut, loadDataFrom: anyURL(), toFinishWith: .failure(RemoteFeedImageLoader.Error.invalidData)) {
-//                client.complete(withStatusCode: code, data: validData)
-//            }
-//        }
-//    }
 
     // MARK: - Helpers
 
